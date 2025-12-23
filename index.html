@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
 <head>
     <meta charset="UTF-8">
@@ -9,21 +12,41 @@
 </head>
 
 <body>
-    <div id="title">
+    <!-- Header -->
+    <header>
         U WANNA STEAL MY SWAG
-    </div>
-    <img src="background_1.png" alt="" id="background-1">
-    <div id="glitter"></div>
-    <main>
-        <div class="container">
-            <div class="padding"></div>
-            <div class="text">
-                hi bitches im mallory
+    </header>
+
+    <!-- Content Container -->
+    <div class="container" style="margin-top: 10vh;">
+        <div class="padding"></div>
+        <div class="main">
+            <p class="text tinos-regular">
+                Hi bitches im mallory U eat ass so much ass im the biggest ass eater of them all.
+            </p>
+            <div>
+                <img src="mirror_base.png" alt="">
+                <img src="mirror_screen.png" class="img-stack" alt="" id="mirror-screen">
             </div>
-            <div class="padding"></div>
+            
+            <a href="">ENTER</a>
         </div>
-    </main>
+        <div class="padding"></div>
+    </div>
 
 </body>
+<script>
+    const mirror = document.getElementById("mirror-screen");
 
+    let i=0;
+    function oscilateBrightness (){
+        let val = 1 + Math.abs(Math.sin(i))/4;
+        mirror.style.filter = "contrast("+val+") brightness("+val+")";
+        i=i+Math.PI/5;
+        if (i > 2*Math.PI) {
+            i = 0;
+        }
+    }
+    setInterval(oscilateBrightness, 10);
+</script>
 </html>
