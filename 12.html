@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12</title>
+</head>
+
+<body>
+    <div class="fun-container">
+        <img src="12-1.png" alt="">
+        <a href="index.html" style="filter:grayscale(1)" class="back-button">bye!!!!!!!!!!!!!!</a>
+    </div>
+    
+</body>
+
+<style>
+    body {
+        background-image: url(12-2.png);
+        background-size: min(100%, 100vh);
+        background-position: center top;
+    }
+
+    .back-button {
+        position: absolute;
+        margin: 0;
+        top: 30%;
+        left: 17%;
+        width: 30%;
+        height: 5%;
+        font-size: 10%;
+        padding: 7% 1%;
+        color: transparent;
+        border: 4px dotted black;
+    }
+    .back-button:hover {
+        border: 4px dotted rgba(0, 0, 0, 0);
+    }
+
+    .fun-container {
+        position: relative;
+        width: fit-content;
+        margin-top: 10vh;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    img {
+        width: unset;
+        height: 60vh;
+    }
+</style>
+<script>
+    const backButton = document.querySelector(".back-button");
+    const img = document.querySelector(".fun-container img");
+    backButton.addEventListener("mouseover", () => {
+        img.src = "12-1.png";
+    });
+    backButton.addEventListener("mouseout", () => {
+        img.src = "12-2.png";
+    });
+</script>
