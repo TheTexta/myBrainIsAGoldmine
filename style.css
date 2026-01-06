@@ -19,11 +19,13 @@ body::before {
 
 body {
   background-image: url("glitter.gif");
-  background-repeat: repeat; 
+  background-repeat: repeat;
   background-color: black;
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-
 
 header {
   text-align: center;
@@ -35,14 +37,21 @@ header {
   width: 100%;
 }
 
-footer{
-  margin-top: auto 0;
+footer {
   width: 100%;
   height: 10vh;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 100%);
-  mix-blend-mode: multiply;
-}
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgb(0, 0, 0) 100%
+  );
 
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* bottom */
+  align-items: center; /* center horizontally */
+  padding-bottom: 0.75rem; /* little breathing room */
+}
 
 p {
   margin: 1rem;
@@ -50,12 +59,10 @@ p {
 }
 
 @media screen and (max-width: 482px) {
-  header{
-    font-size:48px;
+  header {
+    font-size: 48px;
   }
 }
-
-
 
 img {
   width: 90%;
@@ -65,7 +72,7 @@ img {
   display: block;
 }
 
-a{
+a {
   color: white;
   border: solid;
   text-decoration: none;
@@ -75,21 +82,25 @@ a{
   font-size: 2rem;
   text-align: center;
 }
-a:hover{
+a:hover {
   background-image: url("glitter.gif");
   filter: contrast(2);
 }
 
-h1{
-  font-size:32px;
+h1 {
+  font-size: 32px;
   margin: 2rem 1rem;
 }
 
-hr{
+hr {
   width: 20%;
   margin: 2rem auto;
 }
+figure{
+  column-count: 3;
+  gap: 0;
 
+}
 
 .container {
   display: flex;
@@ -97,6 +108,8 @@ hr{
   justify-content: center;
   box-sizing: border-box;
   width: 100%;
+  flex-direction: column;
+  column-count: 1;
 }
 
 .main {
@@ -109,10 +122,12 @@ hr{
   margin-left: auto;
   padding: 1rem;
   width: 660px;
+  flex-direction: column;
+  column-count: 1;
 }
 @media screen and (max-width: 660px) {
   .main {
-    width:70vw;
+    width: 70vw;
   }
 }
 
@@ -121,7 +136,7 @@ hr{
   /* background: linear-gradient(90deg,rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%); */
 }
 
-.img-stack{
+.img-stack {
   mix-blend-mode: screen;
   position: absolute;
   transform: translateY(-100%);
@@ -134,15 +149,47 @@ hr{
 
 .content {
   font-size: 18px;
+  background: rgb(0, 0, 0);
+  color: rgb(255, 255, 255);
+  background-color: rgb(0, 0, 0);
+  border: solid;
+  position: relative;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 1rem;
+  width: 660px;
+  box-sizing: border-box;
+  margin-top: min(15vw,7vh);
 }
 
+
 @media screen and (max-width: 482px) {
-  content{
+  .content {
     font-size: 15px;
+  }
+}
+@media screen and (max-width: 660px) {
+  .content {
+    width: 70vw;
   }
 }
 
 
+
+.footer-link {
+  width: auto;
+  margin: 0;
+  font-size: 1rem;
+  border: none;
+  display: inline;
+  color: rgb(240, 240, 240);
+  mix-blend-mode: color-dodge;
+}
+.footer-link:hover {
+  filter: contrast(2);
+  background-image: none;
+  color: rgb(252, 252, 252);
+}
 
 /*fonts*/
 .tinos-regular {
