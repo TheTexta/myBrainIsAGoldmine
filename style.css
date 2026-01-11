@@ -84,7 +84,6 @@ a {
 }
 a:hover {
   background-image: url("glitter.gif");
-  filter: contrast(2);
 }
 
 h1 {
@@ -186,7 +185,6 @@ figure{
   mix-blend-mode: color-dodge;
 }
 .footer-link:hover {
-  filter: contrast(2);
   background-image: none;
   color: rgb(252, 252, 252);
 }
