@@ -26,8 +26,8 @@
 
     <!-- Content Container -->
     <div class="container" style="margin-bottom: min(15vw,7vh);">
-        <img id="cat" src="Mal the Cat Normal.gif" style="width: 20%; position:absolute; bottom:0; z-index:1; border: none" alt="" onclick="exposeTheCat()">
-        <a id="cat-button" style="position: absolute; bottom:18vw; left:2%; z-index:2;width:15%; font-size:2.6vw; display:none; background: none" href="https://ca.pinterest.com/mallorywebberr/">PINTEREST</a>        
+        <img id="cat" src="Mal the Cat Normal.gif" style="width: 20%; position:absolute; bottom:0; z-index:1; border: none; cursor: pointer;" alt="" onclick="exposeTheCat()">
+        <a id="cat-button" style="position: absolute; bottom:18vw; left:2%; z-index:2;width:15%; font-size:2.6vw; display:none; background: none; border: none; mix-blend-mode: hard-light; color:rgb(239, 239, 239)" href="https://ca.pinterest.com/mallorywebberr/">PINTEREST</a>        
         <div class="content tinos-regular">
             <h1 class="title tinos-regular">Protected: my brain is a goldmine.</h1>
             <p></p>
@@ -251,6 +251,7 @@
     exposeTheCat = () => {
         const cat = document.getElementById('cat');
         cat.src = "Mal the Cat.gif";
+        cat.style.cursor = "inherit";
         const catButton = document.getElementById('cat-button');
         catButton.style.display = "block";
         cat.onclick = closeTheCat;
@@ -261,5 +262,7 @@
         const catButton = document.getElementById('cat-button');
         catButton.style.display = "none";
         cat.onclick = exposeTheCat;
+                cat.style.cursor = "pointer";
+
     }
 </script>
