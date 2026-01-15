@@ -101,6 +101,7 @@ figure{
 
 }
 
+
 .container {
   display: flex;
   align-self: center;
@@ -173,7 +174,9 @@ figure{
   }
 }
 
-
+.embed-spotify {
+  margin: 1rem;
+}
 
 .footer-link {
   width: auto;
