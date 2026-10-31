@@ -55,7 +55,18 @@ a new Vercel project with one existing owner account as the initial editor.
   public homepage. Its original seven panels and eleven entries remain intact.
 - Initial Vercel builds selected Node 26 from the unbounded package engine despite
   a Node 24 function runtime. The engine range is now bounded to supported Node
-  22/24; verify the next build uses Node 24 before acceptance.
+  22/24. The next preview from `82029af` explicitly reported the build-version
+  change from 26 to 24 and completed successfully, without that adapter warning.
+
+Current acceptance target: revision `82029af1e2e194479197ca157212f66fecf7847c`,
+deployment `dpl_5wVeZU8RGYajkdVbtMYwMfauepCZ`, at
+`https://my-brain-is-a-goldmine-md8t3blpv-thetextas-projects.vercel.app/admin`.
+Only that exact preview and the canonical origin are currently in R2 CORS; the
+earlier acceptance preview origin was removed. A one-hour Vercel share capability
+was used privately to open the editor in the local acceptance browser; no bypass
+token is stored in this repository. The owner must sign in there with their normal
+Supabase account before authenticated acceptance can proceed. Do not substitute
+an administrative impersonation or service-role session for that check.
 
 **Remaining gate:** real sign-in, S3 upload/sealed-byte verification, draft preview,
 publish/edit/unpublish and session/concurrency acceptance, plus real embed playback.

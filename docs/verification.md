@@ -49,9 +49,29 @@ explicit inventory-collapse control is a nonblocking future improvement.
   embed attributes, links, and panel-count hashes against live responses.
 - All 26 published assets passed SHA-256 comparison; both PSD URLs returned 404.
 - Homepage loads no editor bundles; seven original panels and eleven entries are
-  present. Desktop rendering inspected with no broken images.
+  present. Desktop and 390-pixel mobile rendering inspected with no broken images
+  or mobile horizontal overflow.
 - Admin page/API responses are no-store and non-frameable. Anonymous post access
   returned 401; missing/unpublished public media returned 404 with no-store.
+- A further preview from `82029af` built successfully using Node 24 after bounding
+  package engines. Astro check, ten unit tests, and all 28 desktop/mobile protocol-
+  double browser tests passed again; the ordinary Node build was restored afterward.
+
+### Latest dependency audit
+
+The initial zero-vulnerability audit above is historical. A fresh audit during the
+Node-24 preview now reports **four moderate findings, zero high/critical** in the
+build-time `@astrojs/vercel → @vercel/nft → glob → minimatch` chain:
+
+- `glob`: `GHSA-3g3m-2fjr-6pw4`, cancellation/continued filesystem traversal.
+- `minimatch`: `GHSA-g3hv-75wg-m249`, pattern-amplification denial of service.
+
+There are two underlying advisories; npm counts their affected ancestors too.
+The installed tracing package requires glob 13. Patched glob 14.0.2/minimatch
+11.0.1 are outside that dependency's declared major ranges. No forced major
+override or npm-suggested incompatible adapter downgrade was applied during
+activation. Review an upstream-compatible fix separately; do not present the
+earlier zero count as the current audit result.
 
 ## Not established yet
 
