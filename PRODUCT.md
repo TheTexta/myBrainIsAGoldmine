@@ -32,8 +32,9 @@ R2 storage. Production activation is a separate approval gate.
 
 The original four HTML pages and media are preserved in Git revision
 `2773eda0194d60270857693f32b2efb9f69230e0`. The conversion preserves the public
-media URLs and original bytes. No production backend or hosting target has been
-activated by this work.
+media URLs and original bytes. Backend provisioning and a protected Vercel preview
+were approved separately. Public launch remains gated on live authenticated
+acceptance; see `docs/publishing.md`.
 
 ## Brand commitments
 

@@ -1,15 +1,17 @@
 # My brain is a goldmine
 
 Faithful Astro conversion of Mallory's site, with a browser-based BlockNote
-publishing editor. **The app has not been deployed or connected to production
-Supabase/R2.** The owner approved activation on 2026-10-30; the Vercel project and
-private R2 bucket are created, the database is backed up, and Preview/Production
-environment variables are configured. Migration and live acceptance remain. See
+publishing editor. **A protected Vercel preview is deployed; public launch and
+authenticated upload/publishing acceptance remain pending.** The owner approved
+activation on 2026-10-30. Supabase migration, one editor grant, private R2 storage,
+backup, and Preview/Production variables are configured. See
 [current activation state](docs/publishing.md#current-gate).
 
 ## Run locally
 
-Use Node **22.23.4 or newer supported LTS**, matching `.nvmrc`:
+Use Node **22.23.4+ within Node 22, or Node 24**. `.nvmrc` selects 22.23.4;
+Vercel selects Node 24. The bounded engine range prevents a newer build major
+from silently differing from the supported function runtime:
 
 ```sh
 nvm install

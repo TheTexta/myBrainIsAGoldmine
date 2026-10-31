@@ -37,10 +37,26 @@ lazy-loaded after entry selection and is not requested by public pages. The
 mobile editor's writing starts near the fold beneath the entry inventory; an
 explicit inventory-collapse control is a nonblocking future improvement.
 
-## Not established by these checks
+## Subsequent protected-preview checks — 2026-10-31 UTC
 
-No real Supabase schema/grants, live R2 signatures/conditional writes/CORS,
-deployment routing, real embed playback, or live session-expiry flow has been
-accepted. At completion of these local checks, no production changes, user grants,
-object retirement, push, or deployment had occurred. Follow the acceptance checklist in
-`publishing.md` before activation.
+- Fresh database custom archive and globals backup saved with restricted access;
+  archive listing and full SQL-generation read passed (not a restore rehearsal).
+- Production PostgreSQL 15.8 migration, sole owner membership, table/function
+  ownership, effective grants, and RLS checked. Read-only anonymous/nonmember/editor
+  role assertions passed without changing editorial content.
+- Protected preview build passed from `37246ee`; all-URL Vercel Login confirmed.
+- All four original URLs matched their baseline title, text, image attributes,
+  embed attributes, links, and panel-count hashes against live responses.
+- All 26 published assets passed SHA-256 comparison; both PSD URLs returned 404.
+- Homepage loads no editor bundles; seven original panels and eleven entries are
+  present. Desktop rendering inspected with no broken images.
+- Admin page/API responses are no-store and non-frameable. Anonymous post access
+  returned 401; missing/unpublished public media returned 404 with no-store.
+
+## Not established yet
+
+Real authenticated browser sign-in, R2 signatures/conditional writes/CORS,
+upload byte sealing, real embed playback, live session expiry and concurrent
+editing remain unaccepted. The owner's R2 variables are Sensitive and were not
+decrypted; presence alone does not establish valid S3 credentials. Follow the
+remaining acceptance checklist in `publishing.md` before public launch.

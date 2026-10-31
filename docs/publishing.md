@@ -6,10 +6,11 @@ The owner approved this site's production activation on 2026-10-30 and selected
 a new Vercel project with one existing owner account as the initial editor.
 
 - Created Vercel project `my-brain-is-a-goldmine` under `thetextas-projects`.
-  Its verified canonical domain is `my-brain-is-a-goldmine.vercel.app`; **no app
-  deployment is live yet**. Node 24 is selected. Preview and deployment-specific
-  URLs retain Vercel protection; the canonical production alias is intended to
-  be public when deployed.
+  Its canonical domain is `my-brain-is-a-goldmine.vercel.app`. **All URLs currently
+  require Vercel authentication**, including the canonical alias, while acceptance
+  is pending. Node 24 is selected. After acceptance, restore
+  `prod_deployment_urls_and_all_previews` protection so only the canonical
+  production alias becomes public.
 - Verified the shared Supabase API target, absence of conflicting `mybrain_*`
   objects/private schema, and a unique confirmed intended owner account.
 - Verified the backend host over Tailscale/SSH and production PostgreSQL 15.8.
@@ -22,8 +23,9 @@ a new Vercel project with one existing owner account as the initial editor.
   default ACLs and role capabilities were inspected separately.
 - Created private R2 bucket `mybrainisagoldmine` in ENAM on 2026-10-31 UTC
   (2026-10-30 local). Verified managed r2.dev access is disabled and there are no
-  custom domains. CORS permits only the verified canonical production origin,
-  with PUT/GET/HEAD and Content-Type; no shared Worker changes were made.
+  custom domains. CORS permits only the canonical origin and exact acceptance
+  preview origin, with PUT/GET/HEAD and Content-Type. No wildcard preview origins
+  or shared Worker changes are used.
 - The owner created the R2 credential manually and entered its S3 pair directly
   into Vercel as Sensitive variables. Both Preview and Production scopes are
   verified without decrypting the values; real S3 acceptance is still pending.
@@ -34,10 +36,31 @@ a new Vercel project with one existing owner account as the initial editor.
   additional authorization, and user-token permission discovery explicitly rejects
   OAuth. Manual credential provisioning avoids broadening the connection grant.
 
-No production SQL, editor grants, shared Worker changes, deployment, or push has
-occurred. The next gates are migration, the sole approved editor grant, a protected
-preview, and authenticated real acceptance. Protocol-double tests do not establish
-live Supabase/R2 acceptance.
+- Applied the reviewed `mybrain_publishing` migration from revision `37246ee`
+  through the migration tool, with bounded lock/statement timeouts. Granted only
+  the unique existing account selected by the owner. Verified 11 drafts, 11 legacy
+  public projections, one editor, and no media rows. Original entries are unchanged.
+- Verified actual production ownership, RLS and effective privileges, including
+  Supabase's broader default ACLs. Read-only assertions established anonymous
+  draft denial, nonmember private-content/publishing denial, and intended editor
+  reads. These database-role checks do not replace a real Auth/browser session.
+- Committed/pushed the conversion on `astro-blocknote-activation`; `main` remains
+  at the original revision. Vercel classified its first Git-triggered deployment
+  as Production, unexpectedly. Protection was tightened to **all** URLs and
+  independently verified to show Vercel Login before continuing. A separate
+  explicit preview (`target: null`) then built successfully from `37246ee`.
+- The protected preview passed live original-page content/URL hashes, all 26
+  published asset checksums, PSD denial, admin security headers, anonymous API
+  denial, and missing/unpublished media denial. It loads no editor bundles on the
+  public homepage. Its original seven panels and eleven entries remain intact.
+- Initial Vercel builds selected Node 26 from the unbounded package engine despite
+  a Node 24 function runtime. The engine range is now bounded to supported Node
+  22/24; verify the next build uses Node 24 before acceptance.
+
+**Remaining gate:** real sign-in, S3 upload/sealed-byte verification, draft preview,
+publish/edit/unpublish and session/concurrency acceptance, plus real embed playback.
+No shared Worker changes, original retirement, or public-launch approval override
+has occurred. Keep all-URL protection until these checks are resolved.
 
 ## Configuration
 
