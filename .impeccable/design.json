@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-30T23:30:00Z",
+  "title": "Design System: My brain is a goldmine",
+  "extensions": {
+    "breakpoints": [
+      { "name": "public-small-type-max", "value": "482px" },
+      { "name": "public-panel-width-max", "value": "660px" },
+      { "name": "admin-stacked-workspace-max", "value": "760px" }
+    ]
+  }
+}

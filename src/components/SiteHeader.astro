@@ -1,0 +1,19 @@
+---
+interface Props {
+    interactive?: boolean;
+}
+
+const { interactive = false } = Astro.props;
+---
+
+<header>
+    {interactive ? (
+        <button id="swag-button" style="background: none; border: none; cursor: pointer; padding: 0; font: inherit; color:white">U WANNA STEAL MY SWAG</button>
+    ) : 'U WANNA STEAL MY SWAG'}
+</header>
+
+<script>
+    document.getElementById('swag-button')?.addEventListener('click', () => {
+        window.location.href = '12.html';
+    });
+</script>

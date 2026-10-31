@@ -1,0 +1,63 @@
+{
+  "sourceRevision": "2773eda0194d60270857693f32b2efb9f69230e0",
+  "pages": {
+    "/index.html": {
+      "title": "U wanna steal my swag 101", "contentSections": 7,
+      "textSha256": "4b86d586510c50c702de6760658709eee344bd18935b49d9f865d850a6aef6ff",
+      "imagesSha256": "f962bf1772d579fb4871fbdd883d647aec28c6860195c89b99ee043be9c98b6d",
+      "embedsSha256": "ce4a3bd71383b48a34c160e6745023af2c1cc5c1cd29c406f0af628dbfd81657",
+      "linksSha256": "b36c49d39c65db861c57d268ed24cdf964a71b53336b58a2e9b02bba2f4d2ab6"
+    },
+    "/1.html": {
+      "title": "U wanna steal my swag 101", "contentSections": 0,
+      "textSha256": "97d98b67aaa0b5415b78c9656640aa06b80606277abe8d9e6e016a48a059fa58",
+      "imagesSha256": "9f3d83aba57d101046a6a6f0eff1fa050b11a61ea5435d3932dcfb5c64931d46",
+      "embedsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "linksSha256": "e569be8eaeea7600217daa47cf2f8dfc42a0b9b907d4f27d737313f094e9fa2e"
+    },
+    "/12.html": {
+      "title": "12", "contentSections": 0,
+      "textSha256": "84156eb77df417e5746813b48d7fafbd1a3cb9d05709e77c343d68f16302ec87",
+      "imagesSha256": "d3683ba4c31273757c548d3311ff3e92f19bb16f1572ac64baa0e324989a7596",
+      "embedsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "linksSha256": "42ba43ca8db66e57ee1887519527180d38363099b5765a31a704f89097648fee"
+    },
+    "/3.html": {
+      "title": "Cafe at the end of the world", "contentSections": 0,
+      "textSha256": "84156eb77df417e5746813b48d7fafbd1a3cb9d05709e77c343d68f16302ec87",
+      "imagesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "embedsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "linksSha256": "42ba43ca8db66e57ee1887519527180d38363099b5765a31a704f89097648fee"
+    }
+  },
+  "assets": {
+    "12-1.png": "fec60a8312a854d09c2c009b8d9bef258bbd944c4997cdf91eb9c5a7c1c0cc4c",
+    "12-2.png": "630dd54b9d04438b524a694d9ed62bdd15982d386ce8dcb177a296712a6ac50d",
+    "12.png": "eee9a52e3c670feb4e00b0892c09fa9c45d7cce953f122d595bb8b2edc09f935",
+    "2iiH.gif": "df6e35420ae1c4c0505bab7ea974b9ba8dd9de897e122bcfd58cb848ceec84f2",
+    "3.png": "5df5bac94ff5cdd7118c3c28e17648020a5b5edef68407e3800c9a3e50d45299",
+    "76YS.gif": "8a7fd1d24e30f4851f746ea7c47b8dfbc9ef4897afcfb85d6ddd3bc3de48be39",
+    "E2k7.gif": "4934841c90ba059fc267b20d7a1f60b101f6301195a337977725705c6a386f97",
+    "Image 3132.png": "8e77746caa7b67bf4909d63dbbdfeb6bf9738a99a77fc439e1e6156a7595c554",
+    "Mal the Cat Normal.gif": "bb2f1d5acc388534cbacf290a99f0682122d023b8963dad144fa9b562704b24a",
+    "assets/favicon/apple-touch-icon.png": "cbde4d8e1584c3249daec33b022f67b98df163e8f84cb137cfb897fd56e2953a",
+    "assets/favicon/favicon-96x96.png": "96355212f22b4c78c71c9c3d641a008d711a72145246a27347a1074cf60ac68c",
+    "assets/favicon/favicon.ico": "005cdf54bc338b0eb30f768c45c9b350b83875d87b83ac41bb588a758c864345",
+    "assets/favicon/favicon.svg": "765f8fc7ea0d6593d193dde7bd99fc4df89c64372ea36047bedd8756341f6401",
+    "assets/favicon/site.webmanifest": "37f2a42af1039992fd7500ab69e649790d0b7937476bf749e601f8d5cbd70d7f",
+    "assets/favicon/web-app-manifest-192x192.png": "72ea21b432d7885fb1713333fa4fc750058cc3cce5df48bd885d6a8f6eb7d7e8",
+    "assets/favicon/web-app-manifest-512x512.png": "216cc9bec7e62dc8b96d55aa6322398f9a2be695c2921daf8e08705ebf22d883",
+    "fog.gif": "18458805fb357045d214b3848fbefdae24eee0adc601d6bd55a84998f979e5e8",
+    "glitter.gif": "dfd9a258650cbe3671d4c989767c5b7264920121ac1c1d64bbbf975e395fca89",
+    "img_3134.png": "6358220e5003399ed0585819cdb5b4432635052b073ec62537f9f199163fba8c",
+    "mal the cat.gif": "ebaf381e746be445a2d0d67c1b31b14a92d52d0a1c839e66df3183c3b0e69a8c",
+    "mal the cat.psd": "6c63a003e5aa2a084cccc119e56319f48e11d3ff4275c42fd764d7cf71d0c23a",
+    "mall is swagy.psd": "9cae2a6fcb48bd1de163c70236ae1f5cd7e71e2b431e5cefec43ba1eb29bb9a3",
+    "mirror_base.png": "bef9a07a15996d9b937d681decb6fdd864879f5db32b03967c8abd6d32a555b8",
+    "mirror_screen.png": "8f119e8b8a92df62e3f587331d1100d989b4886fb138cf562a168558364554c6",
+    "pen_n_cry.jpg": "689425ed1052d7771520e5d5360ccb0d7d293ee8b20e11ad959e679a6379ded1",
+    "pinkglitter.gif": "a99995a767b46250751939f2e79ceb2656205c8fbb70278f63c1b40de7602cdb",
+    "so_inspired_thou.png": "48c589460395e287c184e3ea3a2d3b964dcbbddb2ba2c4f0955e8412ce561f22",
+    "style.css": "f791f321aa26eac027b1e4700613fa9229e5e10e0c2a709a9634177ec27ceca0"
+  }
+}

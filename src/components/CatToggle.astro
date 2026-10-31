@@ -1,0 +1,16 @@
+<img id="cat" src="Mal the Cat Normal.gif" style="width: 20%; position:absolute; bottom:0; z-index:1; border: none; cursor: pointer;" alt="">
+<a id="cat-button" style="position: absolute; bottom:18vw; left:2%; z-index:2;width:min(15%,7vh); font-size:2.6vw; display:none; background: none; border: none; mix-blend-mode: hard-light; color:rgb(239, 239, 239)" href="https://ca.pinterest.com/mallorywebberr/">PINTEREST</a>
+
+<script>
+    const cat = document.querySelector<HTMLImageElement>('#cat');
+    const catButton = document.getElementById('cat-button');
+
+    if (cat && catButton) {
+        cat.addEventListener('click', () => {
+            const isOpen = catButton.style.display === 'block';
+            cat.src = isOpen ? 'Mal the Cat Normal.gif' : 'mal the cat.gif';
+            cat.style.cursor = isOpen ? 'pointer' : 'inherit';
+            catButton.style.display = isOpen ? 'none' : 'block';
+        });
+    }
+</script>

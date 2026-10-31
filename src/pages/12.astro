@@ -1,0 +1,62 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout title="12">
+    <div style="position: absolute; width: 100%; height: 100%; z-index: 0; bottom:0;mix-blend-mode: screen; background-image:url(fog.gif); opacity: 0.2;"></div>
+    <div class="fun-container">
+        <img src="12-1.png" alt="">
+        <a href="index.html" style="filter:grayscale(1)" class="back-button">bye!!!!!!!!!!!!!!</a>
+    </div>
+
+<style slot="head" is:inline>
+    body {
+        background-image: url(12-2.png);
+        background-size: min(100%, 100vh);
+        background-position: center top;
+        background-color: black;
+    }
+
+    .back-button {
+        position: absolute;
+        margin: 0;
+        top: 30%;
+        left: 17%;
+        width: 30%;
+        height: 5%;
+        font-size: 10%;
+        padding: 7% 1%;
+        color: transparent;
+        border: 4px dotted black;
+    }
+    .back-button:hover {
+        border: 4px dotted rgba(0, 0, 0, 0);
+    }
+
+    .fun-container {
+        position: relative;
+        width: fit-content;
+        margin-top: 10vh;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    img {
+        width: unset;
+        height: 60vh;
+        border: none;
+    }
+</style>
+</SiteLayout>
+
+<script>
+    const backButton = document.querySelector(".back-button");
+    const img = document.querySelector<HTMLImageElement>(".fun-container img");
+    if (backButton && img) {
+        backButton.addEventListener("mouseover", () => {
+            img.src = "12-1.png";
+        });
+        backButton.addEventListener("mouseout", () => {
+            img.src = "12-2.png";
+        });
+    }
+</script>

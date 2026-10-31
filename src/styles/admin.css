@@ -1,0 +1,66 @@
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #161616; background: #f4f4f4; accent-color: #161616; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input { font: inherit; }
+button, input { border: 1px solid #777; border-radius: 0; }
+button { cursor: pointer; background: #fff; color: #161616; padding: .65rem .9rem; min-height: 44px; }
+button:hover:not(:disabled) { background: #e5e5e5; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+button.primary { background: #161616; color: #fff; }
+button.primary:hover:not(:disabled) { background: #383838; }
+input { width: 100%; min-height: 44px; background: #fff; color: #161616; padding: .65rem .75rem; }
+input::placeholder { color: #626262; }
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #3267b1; outline-offset: 3px; }
+::selection { color: #fff; background: #343434; }
+a { color: inherit; text-underline-offset: .2em; }
+label { display: block; margin-bottom: .4rem; font-weight: 600; }
+h1, h2, p { margin-top: 0; }
+p { line-height: 1.6; max-width: 70ch; }
+h2 { font-size: 1.2rem; margin-bottom: 1rem; }
+.admin-header { display: flex; gap: 2rem; align-items: center; padding: 1rem 2rem; background: #000; color: #fff; }
+.admin-header > a { font-family: Georgia, serif; font-size: 1.4rem; }
+.admin-header h1 { margin: 0; font-size: 1rem; font-weight: 400; }
+.admin-header > button { margin-left: auto; }
+.admin-app > p { margin: 2rem; }
+.admin-message { padding: 1rem 2rem; background: #e4efe7; color: #174c29; line-height: 1.5; }
+.admin-message.error { background: #f7e5e2; color: #872f25; }
+.login-form, .setup-notice { margin: 4rem auto; padding: 2rem; max-width: 32rem; }
+.login-form input { margin-bottom: 1.4rem; }
+.workspace { display: grid; grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr); min-height: calc(100vh - 80px); }
+.entry-list { padding: 2rem 1.25rem; border-right: 1px solid #b8b8b8; }
+.entry-list > button { width: 100%; }
+.entry-list ul { list-style: none; padding: 0; margin: 1rem 0; }
+.entry-list li button { width: 100%; text-align: left; border: 0; background: transparent; padding: .85rem .6rem; overflow-wrap: anywhere; }
+.entry-list button[aria-current] { background: #dedede; }
+.entry-list span, .entry-list small { display: block; }
+.entry-list small { color: #555; margin-top: .35rem; }
+.writing-area { padding: 2rem clamp(1rem, 4vw, 4rem); min-width: 0; background: #fff; }
+#entry-title { font-family: Georgia, serif; font-size: clamp(1.2rem, 2vw, 1.8rem); }
+.publishing-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: 1rem 0 2rem; }
+.publishing-actions > span { margin-right: auto; font-size: .85rem; color: #555; }
+.original-notice, .editor-empty { padding: 2rem 0; max-width: 65ch; }
+.editor-tools { border-bottom: 1px solid #ccc; margin-bottom: 2rem; }
+.editor-tools summary { cursor: pointer; min-height: 44px; padding: .65rem 0; }
+.editor-tools summary:focus-visible { outline: 3px solid #3267b1; outline-offset: 3px; }
+.embed-form { padding-bottom: 1.5rem; }
+.image-upload { margin: 1rem 0 1.5rem; max-width: 32rem; }
+.image-upload input { margin-top: .5rem; }
+.embed-form > div { display: flex; gap: .5rem; }
+.embed-form input { min-width: 0; }
+.embed-form button { flex-shrink: 0; }
+.editor-embed { border: 1px solid #b8b8b8; padding: 1rem; width: 100%; }
+.editor-embed span { display: block; overflow-wrap: anywhere; margin-top: .5rem; font-size: .85rem; }
+.writing-area .bn-editor { padding-inline: 36px 12px; min-height: 20rem; }
+.preview { margin-top: 3rem; border-top: 1px solid #999; padding-top: 2rem; }
+.preview iframe { width: 100%; height: 42rem; border: 1px solid #999; background: #000; }
+@media (max-width: 760px) {
+    .admin-header { padding: 1rem; gap: .75rem; flex-wrap: wrap; }
+    .admin-header > a { font-size: 1.15rem; }
+    .workspace { grid-template-columns: 1fr; }
+    .entry-list { border-right: 0; border-bottom: 1px solid #b8b8b8; padding: 1rem; }
+    .entry-list ul { max-height: 13rem; overflow: auto; scrollbar-color: #777 #eee; }
+    .writing-area { padding: 1.5rem 1rem; }
+    .publishing-actions > span { flex-basis: 100%; margin-bottom: .4rem; }
+    .embed-form > div { flex-direction: column; }
+    .login-form { margin-top: 2rem; padding: 1.5rem; }
+}
