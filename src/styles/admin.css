@@ -1,66 +1,70 @@
-:root { color-scheme: light; font-family: system-ui, sans-serif; color: #161616; background: #f4f4f4; accent-color: #161616; }
-* { box-sizing: border-box; }
-body { margin: 0; }
-button, input { font: inherit; }
-button, input { border: 1px solid #777; border-radius: 0; }
-button { cursor: pointer; background: #fff; color: #161616; padding: .65rem .9rem; min-height: 44px; }
-button:hover:not(:disabled) { background: #e5e5e5; }
-button:disabled { cursor: not-allowed; opacity: .5; }
-button.primary { background: #161616; color: #fff; }
-button.primary:hover:not(:disabled) { background: #383838; }
-input { width: 100%; min-height: 44px; background: #fff; color: #161616; padding: .65rem .75rem; }
-input::placeholder { color: #626262; }
-input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #3267b1; outline-offset: 3px; }
-::selection { color: #fff; background: #343434; }
-a { color: inherit; text-underline-offset: .2em; }
-label { display: block; margin-bottom: .4rem; font-weight: 600; }
-h1, h2, p { margin-top: 0; }
-p { line-height: 1.6; max-width: 70ch; }
-h2 { font-size: 1.2rem; margin-bottom: 1rem; }
-.admin-header { display: flex; gap: 2rem; align-items: center; padding: 1rem 2rem; background: #000; color: #fff; }
-.admin-header > a { font-family: Georgia, serif; font-size: 1.4rem; }
-.admin-header h1 { margin: 0; font-size: 1rem; font-weight: 400; }
-.admin-header > button { margin-left: auto; }
-.admin-app > p { margin: 2rem; }
-.admin-message { padding: 1rem 2rem; background: #e4efe7; color: #174c29; line-height: 1.5; }
-.admin-message.error { background: #f7e5e2; color: #872f25; }
-.login-form, .setup-notice { margin: 4rem auto; padding: 2rem; max-width: 32rem; }
-.login-form input { margin-bottom: 1.4rem; }
-.workspace { display: grid; grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr); min-height: calc(100vh - 80px); }
-.entry-list { padding: 2rem 1.25rem; border-right: 1px solid #b8b8b8; }
-.entry-list > button { width: 100%; }
-.entry-list ul { list-style: none; padding: 0; margin: 1rem 0; }
-.entry-list li button { width: 100%; text-align: left; border: 0; background: transparent; padding: .85rem .6rem; overflow-wrap: anywhere; }
-.entry-list button[aria-current] { background: #dedede; }
-.entry-list span, .entry-list small { display: block; }
-.entry-list small { color: #555; margin-top: .35rem; }
-.writing-area { padding: 2rem clamp(1rem, 4vw, 4rem); min-width: 0; background: #fff; }
-#entry-title { font-family: Georgia, serif; font-size: clamp(1.2rem, 2vw, 1.8rem); }
-.publishing-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: 1rem 0 2rem; }
-.publishing-actions > span { margin-right: auto; font-size: .85rem; color: #555; }
-.original-notice, .editor-empty { padding: 2rem 0; max-width: 65ch; }
-.editor-tools { border-bottom: 1px solid #ccc; margin-bottom: 2rem; }
-.editor-tools summary { cursor: pointer; min-height: 44px; padding: .65rem 0; }
-.editor-tools summary:focus-visible { outline: 3px solid #3267b1; outline-offset: 3px; }
-.embed-form { padding-bottom: 1.5rem; }
-.image-upload { margin: 1rem 0 1.5rem; max-width: 32rem; }
-.image-upload input { margin-top: .5rem; }
-.embed-form > div { display: flex; gap: .5rem; }
-.embed-form input { min-width: 0; }
-.embed-form button { flex-shrink: 0; }
-.editor-embed { border: 1px solid #b8b8b8; padding: 1rem; width: 100%; }
-.editor-embed span { display: block; overflow-wrap: anywhere; margin-top: .5rem; font-size: .85rem; }
-.writing-area .bn-editor { padding-inline: 36px 12px; min-height: 20rem; }
-.preview { margin-top: 3rem; border-top: 1px solid #999; padding-top: 2rem; }
-.preview iframe { width: 100%; height: 42rem; border: 1px solid #999; background: #000; }
+@import "./tailwind.css";
+
+@layer base {
+    :root { @apply bg-admin-canvas font-admin text-admin-ink; color-scheme: light; accent-color: var(--color-admin-ink); }
+    body { @apply m-0; }
+}
+
+/* Only site-owned classes: no element-wide resets or BlockNote/Mantine overrides. */
+@layer components {
+    .admin-button, .admin-input { @apply box-border min-h-11 rounded-none border-4 border-solid border-admin-border bg-white text-admin-ink; font: inherit; }
+    .admin-button { @apply cursor-pointer px-4 py-3; }
+    .admin-button:hover:not(:disabled) { @apply bg-[#e5e5e5]; }
+    .admin-button:disabled { @apply cursor-not-allowed opacity-50; }
+    .admin-button.primary { @apply bg-admin-ink text-white; }
+    .admin-button.primary:hover:not(:disabled) { @apply bg-[#383838]; }
+    .admin-input { @apply w-full px-3 py-3; }
+    .admin-input::placeholder { @apply text-[#626262]; }
+    .admin-button:focus-visible, .admin-input:focus-visible, .admin-link:focus-visible, .editor-tools > summary:focus-visible { @apply outline-4 outline-offset-4 outline-admin-focus; }
+    .admin-input::selection { @apply bg-[#343434] text-white; }
+    .admin-link { color: inherit; text-underline-offset: 4px; }
+    .admin-label { @apply mb-2 block font-semibold; }
+    .admin-heading { @apply mt-0 mb-4; font-size: 1.2rem; }
+    .admin-copy { @apply mt-0 max-w-[70ch]; line-height: 1.6; }
+    .admin-header { @apply flex items-center gap-8 bg-black px-8 py-4 text-white; }
+    .admin-header > a { font-family: Georgia, serif; font-size: 1.4rem; }
+    .admin-header h1 { @apply m-0 font-normal; font-size: 1rem; }
+    .admin-header > button { @apply ml-auto; }
+    .admin-app > p { @apply m-8; }
+    .admin-message { @apply bg-[#e4efe7] px-8 py-4 text-[#174c29]; line-height: 1.5; }
+    .admin-message.error { @apply bg-[#f7e5e2] text-[#872f25]; }
+    .login-form, .setup-notice { @apply box-border mx-auto my-16 max-w-128 p-8; }
+    .login-form input { @apply mb-6; }
+    .workspace { @apply grid grid-cols-[minmax(15rem,19rem)_minmax(0,1fr)]; min-height: calc(100vh - 80px); }
+    .entry-list { @apply border-0 border-r-4 border-solid border-[#b8b8b8] px-5 py-8; }
+    .entry-list > button { @apply w-full; }
+    .entry-list ul { @apply my-4 list-none p-0; }
+    .entry-list li button { @apply w-full border-0 bg-transparent px-3 py-4 text-left; overflow-wrap: anywhere; }
+    .entry-list button[aria-current] { @apply bg-[#dedede]; }
+    .entry-list span, .entry-list small { @apply block; }
+    .entry-list small { @apply mt-1 text-admin-muted; }
+    .writing-area { @apply min-w-0 bg-white py-8; padding-inline: round(nearest, clamp(1rem, 4vw, 4rem), var(--spacing)); }
+    #entry-title { font-family: Georgia, serif; font-size: clamp(1.2rem, 2vw, 1.8rem); }
+    .publishing-actions { @apply mt-4 mb-8 flex flex-wrap items-center gap-2; }
+    .publishing-actions > span { @apply mr-auto text-admin-muted; font-size: .85rem; }
+    .original-notice, .editor-empty { @apply max-w-[65ch] py-8; }
+    .editor-tools { @apply mb-8 border-0 border-b-4 border-solid border-[#ccc]; }
+    .editor-tools > summary { @apply min-h-11 cursor-pointer py-3; }
+    .embed-form { @apply pb-6; }
+    .image-upload { @apply mt-4 mb-6 max-w-128; }
+    .image-upload input { @apply mt-2; }
+    .embed-form > div { @apply flex gap-2; }
+    .embed-form input { @apply min-w-0; }
+    .embed-form button { @apply shrink-0; }
+    .editor-embed { @apply box-border w-full border-4 border-solid border-[#b8b8b8] p-4; }
+    .editor-embed span { @apply mt-2 block; overflow-wrap: anywhere; font-size: .85rem; }
+    .preview { @apply mt-12 border-0 border-t-4 border-solid border-[#999] pt-8; }
+    .preview iframe { @apply box-border h-168 w-full border-4 border-solid border-[#999] bg-black; }
+}
+
 @media (max-width: 760px) {
-    .admin-header { padding: 1rem; gap: .75rem; flex-wrap: wrap; }
+    .admin-header { @apply flex-wrap gap-3 p-4; }
     .admin-header > a { font-size: 1.15rem; }
-    .workspace { grid-template-columns: 1fr; }
-    .entry-list { border-right: 0; border-bottom: 1px solid #b8b8b8; padding: 1rem; }
-    .entry-list ul { max-height: 13rem; overflow: auto; scrollbar-color: #777 #eee; }
-    .writing-area { padding: 1.5rem 1rem; }
-    .publishing-actions > span { flex-basis: 100%; margin-bottom: .4rem; }
-    .embed-form > div { flex-direction: column; }
-    .login-form { margin-top: 2rem; padding: 1.5rem; }
+    .workspace { @apply grid-cols-1; }
+    .entry-list { @apply border-r-0 border-b-4 p-4; }
+    .entry-list ul { @apply max-h-52 overflow-auto; scrollbar-color: #777 #eee; }
+    .writing-area { @apply px-4 py-6; }
+    .publishing-actions > span { @apply mb-2 basis-full; }
+    .embed-form > div { @apply flex-col; }
+    .login-form { @apply mt-8 p-6; }
 }

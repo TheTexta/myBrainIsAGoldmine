@@ -1,0 +1,99 @@
+@import "./tailwind.css";
+
+@layer base {
+    body {
+        @apply m-0 flex min-h-screen flex-col bg-black;
+        background-image: url('/glitter.gif');
+        background-repeat: repeat;
+    }
+    header { @apply box-border w-full border-4 border-solid bg-black text-center text-white; font-size: 60px; }
+    footer {
+        @apply flex w-full flex-col items-center justify-end pb-3;
+        height: round(nearest, 10vh, var(--spacing));
+        background: linear-gradient(to bottom, transparent, black);
+    }
+    p { @apply m-4; overflow-wrap: break-word; }
+    img {
+        @apply mx-auto block h-auto box-border border-4 border-solid;
+        width: round(down, 90%, var(--spacing));
+    }
+    a {
+        @apply block border-4 border-solid text-center text-white no-underline;
+        font-size: 2rem;
+        margin: round(nearest, 5%, var(--spacing)) auto;
+        width: round(down, 50%, var(--spacing));
+    }
+    a:hover { background-image: url('/glitter.gif'); }
+    h1 { @apply mx-4 my-8; font-size: 32px; }
+    hr { @apply mx-auto my-8 border-0 border-t-4 border-solid; width: round(down, 20%, var(--spacing)); }
+    figure { @apply columns-3 gap-0; }
+}
+
+@layer components {
+    .site-header-action { @apply cursor-pointer border-0 bg-transparent p-0 text-white; font: inherit; }
+    .site-header-action:focus-visible { @apply outline-4 outline-offset-4 outline-white; }
+    .site-container { @apply flex w-full flex-col self-center justify-center box-border; }
+    .feed-container { margin-bottom: round(nearest, min(15vw, 7vh), var(--spacing)); }
+    .intro-container { margin-top: round(nearest, 10vh, var(--spacing)); }
+    .main, .content { @apply relative mx-auto w-165 border-4 border-solid bg-black p-4 text-white; }
+    /* The introductory artwork intentionally retains its content-box composition. */
+    .main { @apply box-content; }
+    .content {
+        @apply box-border;
+        font-size: 18px;
+        margin-top: round(nearest, min(15vw, 7vh), var(--spacing));
+    }
+    .preview-content { @apply mt-8; }
+    .padding { @apply w-full; }
+    .img-stack { @apply absolute mix-blend-screen; transform: translateY(-100%); left: round(nearest, 5%, var(--spacing)); }
+    .has-text-align-center { @apply text-center; }
+    .embed-spotify { @apply m-4; }
+    .content iframe[src^="https://videopress.com/"] { @apply box-border border-4 border-solid; height: 316px; }
+    .content .prose-link { @apply m-0 inline w-auto border-0 underline; font: inherit; }
+    .footer-link { @apply m-0 inline w-auto border-0; font-size: 1rem; color: rgb(240, 240, 240); mix-blend-mode: color-dodge; }
+    .footer-link:hover { background-image: none; color: rgb(252, 252, 252); }
+    .tinos-regular { @apply font-writing font-normal not-italic; }
+    .tinos-bold { @apply font-writing font-bold not-italic; }
+    .tinos-regular-italic { @apply font-writing font-normal italic; }
+    .tinos-bold-italic { @apply font-writing font-bold italic; }
+    .cat {
+        @apply absolute bottom-0 z-1 cursor-pointer border-0;
+        width: round(down, 20%, var(--spacing));
+    }
+    .cat-link {
+        @apply absolute z-2 hidden border-0 bg-transparent mix-blend-hard-light;
+        bottom: round(nearest, 18vw, var(--spacing));
+        left: round(nearest, 2%, var(--spacing));
+        width: round(down, min(15%, 7vh), var(--spacing));
+        font-size: 2.6vw;
+        color: rgb(239, 239, 239);
+    }
+    .artwork-12 { background-image: var(--artwork-medium); background-size: min(100%, 100vh); background-position: center top; }
+    .artwork-fog { @apply absolute bottom-0 z-0 h-full w-full opacity-20 mix-blend-screen; background-image: url('/fog.gif'); }
+    .artwork-12 .fun-container { @apply relative mx-auto w-fit; margin-top: round(nearest, 10vh, var(--spacing)); }
+    .artwork-12 .back-button {
+        @apply absolute m-0 border-4 border-dotted border-black text-transparent;
+        top: round(nearest, 30%, var(--spacing));
+        left: round(nearest, 17%, var(--spacing));
+        width: round(nearest, 30%, var(--spacing));
+        height: round(nearest, 5%, var(--spacing));
+        padding: round(nearest, 7%, var(--spacing)) round(nearest, 1%, var(--spacing));
+        font-size: 10%;
+    }
+    .artwork-12 .back-button:hover { @apply border-transparent; }
+    .artwork-12 .fun-container > img { @apply w-auto border-0; height: round(nearest, 60vh, var(--spacing)); }
+    .artwork-3 { background-image: var(--artwork-medium); background-size: auto 100vh; background-position: center top; }
+}
+
+@media (max-height: 720px) { .artwork-3 { background-image: var(--artwork-small); } }
+@media (min-height: 1000px) { .artwork-3 { background-image: var(--artwork-large); } }
+@media (max-width: 480px) { .artwork-12 { background-image: var(--artwork-small); } }
+@media (min-width: 1000px) and (min-height: 1000px) { .artwork-12 { background-image: var(--artwork-large); } }
+
+@media (max-width: 660px) {
+    .main, .content { width: round(down, 70vw, var(--spacing)); }
+}
+@media (max-width: 480px) {
+    header { font-size: 48px; }
+    .content { font-size: 15px; }
+}

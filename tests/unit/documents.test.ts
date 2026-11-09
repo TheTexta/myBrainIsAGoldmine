@@ -41,6 +41,13 @@ describe('safe public documents', () => {
         expect(html).toContain('<em>one</em>'); expect(html).toContain('nested');
         expect(html).toContain('alt="&lt;photo&gt;"');
     });
+    it('renders HTTPS signed preview images without sending them through an optimizer', () => {
+        const url = 'https://private-bucket.example/originals/image.png?X-Amz-Signature=test-only&X-Amz-Expires=300';
+        const html = renderDocument([{ type: 'image', props: { url, caption: 'Private preview' } }]);
+        expect(html).toContain('src="https://private-bucket.example/originals/image.png?X-Amz-Signature=test-only&amp;X-Amz-Expires=300"');
+        expect(html).not.toContain('/_image');
+        expect(renderDocument([{ type: 'image', props: { url: url.replace('https:', 'http:') } }])).not.toContain('<img');
+    });
     it('identifies only supported image signatures, never SVG/HTML', () => {
         expect(imageType(Buffer.from([137,80,78,71,13,10,26,10]))).toBe('image/png');
         expect(imageType(Buffer.from('GIF89a'))).toBe('image/gif');

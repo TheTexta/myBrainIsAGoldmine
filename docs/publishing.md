@@ -183,8 +183,12 @@ Supabase token to R2.
 5. An old signed PUT can only change the incoming object, never the sealed original.
 6. Publication atomically registers references. Anonymous `/media/<uuid>` reads
    check current published references before streaming from private R2; these
-   responses are not cached. Unpublishing removes access to new requests, not
-   copies already downloaded or a previously issued five-minute editor read URL.
+    original responses are not cached. The owner separately approved native Astro
+    optimization for published images on 2026-11-09: optimized copies use normal
+    public caching and may remain accessible after unpublishing. Unpublishing
+    denies new original-route reads, not cached optimized copies, downloads already
+    held elsewhere, or a previously issued five-minute editor read URL. Private
+    draft previews never enter the optimizer. See `image-improvements.md`.
 
 Incoming, sealed, orphaned, and unpublished objects are **not automatically deleted**.
 Reservations preserve IDs, sizes, keys, and checksums for recovery. If completion

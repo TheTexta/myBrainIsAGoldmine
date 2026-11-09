@@ -1,62 +1,42 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { Image, getImage } from 'astro:assets';
+import { collageFront, collageBack } from '../lib/images/sources';
+import { responsiveWidths } from '../lib/images/settings';
+import { artworkBackground } from '../lib/images/public';
+
+const options = { widths: responsiveWidths(collageFront.width), sizes: '45vh', format: 'webp' as const, quality: 85 };
+const [front, back, background] = await Promise.all([
+    getImage({ src: collageFront, ...options }), getImage({ src: collageBack, ...options }),
+    artworkBackground(collageBack, { small: [480, 960], medium: [960, 1920], large: [1280, 2316] }),
+]);
 ---
 
-<SiteLayout title="12">
-    <div style="position: absolute; width: 100%; height: 100%; z-index: 0; bottom:0;mix-blend-mode: screen; background-image:url(fog.gif); opacity: 0.2;"></div>
+<SiteLayout title="12" bodyClass="artwork-12" bodyStyle={background}>
+    <div class="artwork-fog"></div>
     <div class="fun-container">
-        <img src="12-1.png" alt="">
-        <a href="index.html" style="filter:grayscale(1)" class="back-button">bye!!!!!!!!!!!!!!</a>
+        <Image src={collageFront} {...options} loading="eager" fetchpriority="high" alt="" data-original-src="12-1.png"
+            data-front-src={front.src} data-front-srcset={front.srcSet.attribute}
+            data-back-src={back.src} data-back-srcset={back.srcSet.attribute} />
+        <a href="index.html" class="back-button grayscale">bye!!!!!!!!!!!!!!</a>
     </div>
 
-<style slot="head" is:inline>
-    body {
-        background-image: url(12-2.png);
-        background-size: min(100%, 100vh);
-        background-position: center top;
-        background-color: black;
-    }
-
-    .back-button {
-        position: absolute;
-        margin: 0;
-        top: 30%;
-        left: 17%;
-        width: 30%;
-        height: 5%;
-        font-size: 10%;
-        padding: 7% 1%;
-        color: transparent;
-        border: 4px dotted black;
-    }
-    .back-button:hover {
-        border: 4px dotted rgba(0, 0, 0, 0);
-    }
-
-    .fun-container {
-        position: relative;
-        width: fit-content;
-        margin-top: 10vh;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    img {
-        width: unset;
-        height: 60vh;
-        border: none;
-    }
-</style>
 </SiteLayout>
 
 <script>
     const backButton = document.querySelector(".back-button");
     const img = document.querySelector<HTMLImageElement>(".fun-container img");
     if (backButton && img) {
+        const swap = (front: boolean) => {
+            img.srcset = (front ? img.dataset.frontSrcset : img.dataset.backSrcset)!;
+            img.src = (front ? img.dataset.frontSrc : img.dataset.backSrc)!;
+            img.dataset.originalSrc = front ? '12-1.png' : '12-2.png';
+        };
         backButton.addEventListener("mouseover", () => {
-            img.src = "12-1.png";
+            swap(true);
         });
         backButton.addEventListener("mouseout", () => {
-            img.src = "12-2.png";
+            swap(false);
         });
     }
 </script>

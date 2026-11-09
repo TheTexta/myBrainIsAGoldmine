@@ -6,10 +6,22 @@ import { setTimeout } from 'node:timers/promises';
 import { chromium } from 'playwright';
 import sharp from 'sharp';
 
-// This verifies the unconfigured archival rendering, not live CMS content or
-// third-party player UI. It creates only local processes and temporary artifacts.
+// Verify the unconfigured feed against reviewed Tailwind screenshots, while also
+// retaining comparisons with the immutable original revision. No live CMS writes.
 const root = process.cwd();
 const fixture = JSON.parse(await readFile('tests/fixtures/legacy.json', 'utf8'));
+const updateBaseline = process.argv.includes('--update-baseline');
+const baselineDirectory = path.join(root, 'tests/fixtures/tailwind-visuals');
+if (updateBaseline) await mkdir(baselineDirectory, { recursive: true });
+const pixels = (image) => sharp(image).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+function changedPixels(before, after) {
+    if (before.info.width !== after.info.width || before.info.height !== after.info.height) return -1;
+    let changed = 0;
+    for (let offset = 0; offset < before.data.length; offset += 4) {
+        if (!before.data.subarray(offset, offset + 4).equals(after.data.subarray(offset, offset + 4))) changed++;
+    }
+    return changed;
+}
 const tempRoot = path.join(tmpdir(), 'opencode');
 await mkdir(tempRoot, { recursive: true });
 const scratch = await mkdtemp(path.join(tempRoot, 'mybrain-visual-'));
@@ -38,6 +50,7 @@ try {
     for (const [name, viewport] of Object.entries({ desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 } })) {
         for (const route of Object.keys(fixture.pages)) {
             const captures = [];
+            let snapshotChangedPixels = 0;
             for (const [label, port] of [['original', 4326], ['astro', 4325]]) {
                 const page = await browser.newPage({ viewport });
                 if (route === '/1.html') {
@@ -67,12 +80,17 @@ try {
                 if (response.status() !== 200) throw new Error(`Cannot compare ${route}: HTTP ${response.status()}`);
                 await page.evaluate(async () => {
                     await document.fonts.ready;
+                    // Exercise every below-fold image in full-page snapshots,
+                    // without disabling native lazy loading in the actual site.
+                    document.querySelectorAll('img').forEach((image) => { image.loading = 'eager'; });
                     await Promise.all([...document.images].map((image) => image.decode().catch(() => {})));
                     const backgrounds = new Set([...document.querySelectorAll('*')].flatMap((element) =>
                         [...getComputedStyle(element).backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g)].map((match) => match[1])));
                     await Promise.all([...backgrounds].map(async (url) => { const image = new Image(); image.src = url; await image.decode(); }));
                     document.querySelectorAll('iframe').forEach((frame) => { frame.removeAttribute('src'); frame.srcdoc = ''; });
                 });
+                const failed = await page.evaluate(() => [...document.images].filter((image) => !image.complete || !image.naturalWidth).map((image) => image.currentSrc || image.src));
+                failed.forEach((source) => remoteFailures.add(source));
                 if (route === '/1.html') await page.clock.runFor(50);
                 else await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
                 const capture = await page.screenshot({ fullPage: true, animations: 'disabled' });
@@ -81,22 +99,21 @@ try {
                 if (label === 'astro') {
                     await mkdir('.impeccable/review', { recursive: true });
                     await page.screenshot({ path: `.impeccable/review/public-${route.slice(1, -5)}-${name}.png`, animations: 'disabled' });
+                    const baselinePath = path.join(baselineDirectory, `${route.slice(1, -5)}-${name}.png`);
+                    if (updateBaseline) await writeFile(baselinePath, capture);
+                    snapshotChangedPixels = changedPixels(await pixels(await readFile(baselinePath)), await pixels(capture));
                 }
-                captures.push(await sharp(capture).ensureAlpha().raw().toBuffer({ resolveWithObject: true }));
+                captures.push(await pixels(capture));
                 await page.close();
             }
             const [before, after] = captures;
-            let changedPixels = 0;
-            if (before.info.width !== after.info.width || before.info.height !== after.info.height) changedPixels = -1;
-            else for (let offset = 0; offset < before.data.length; offset += 4) {
-                if (before.data.subarray(offset, offset + 4).compare(after.data.subarray(offset, offset + 4)) !== 0) changedPixels++;
-            }
-            results.push({ route, viewport: name, width: after.info.width, height: after.info.height, changedPixels });
+            results.push({ route, viewport: name, width: after.info.width, height: after.info.height,
+                legacyChangedPixels: changedPixels(before, after), snapshotChangedPixels });
         }
     }
     await writeFile(path.join(scratch, 'report.json'), JSON.stringify({ results, remoteFailures: [...remoteFailures] }, null, 2));
     console.log(JSON.stringify({ results, remoteFailures: [...remoteFailures], artifacts: scratch }, null, 2));
-    if (remoteFailures.size || results.some((result) => result.changedPixels !== 0)) process.exitCode = 1;
+    if (remoteFailures.size || results.some((result) => result.snapshotChangedPixels !== 0)) process.exitCode = 1;
 } finally {
     await browser?.close();
     for (const server of servers) server.kill('SIGTERM');

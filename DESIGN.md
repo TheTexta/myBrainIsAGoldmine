@@ -1,6 +1,6 @@
 ---
 name: My brain is a goldmine
-description: Preserved public presentation and separately scoped publishing controls.
+description: Handmade public presentation, 4px site layout, and vendor-styled BlockNote.
 colors:
   public-black: "rgb(0, 0, 0)"
   public-white: "rgb(255, 255, 255)"
@@ -18,8 +18,39 @@ typography:
     fontFamily: '"Tinos", serif'
     fontSize: "18px"
     fontWeight: 400
+  public-writing-mobile:
+    fontFamily: '"Tinos", serif'
+    fontSize: "15px"
+  public-header:
+    fontFamily: "inherit"
+    fontSize: "60px"
+  public-header-mobile:
+    fontFamily: "inherit"
+    fontSize: "48px"
+  public-heading-and-link:
+    fontFamily: "inherit"
+    fontSize: "32px"
+  public-footer:
+    fontFamily: "inherit"
+    fontSize: "1rem"
   admin-ui:
     fontFamily: "system-ui, sans-serif"
+    fontSize: "1rem"
+  admin-heading:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "1.2rem"
+  admin-site-link:
+    fontFamily: "Georgia, serif"
+    fontSize: "1.4rem"
+  admin-site-link-mobile:
+    fontFamily: "Georgia, serif"
+    fontSize: "1.15rem"
+  admin-title:
+    fontFamily: "Georgia, serif"
+    fontSize: "clamp(1.2rem, 2vw, 1.8rem)"
+  admin-detail:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: ".85rem"
 rounded:
   admin-control: "0"
 spacing:
@@ -35,17 +66,17 @@ components:
     backgroundColor: "{colors.admin-paper}"
     textColor: "{colors.admin-ink}"
     rounded: "{rounded.admin-control}"
-    padding: ".65rem .9rem"
+    padding: ".75rem 1rem"
   admin-button-primary:
     backgroundColor: "{colors.admin-ink}"
     textColor: "{colors.admin-paper}"
     rounded: "{rounded.admin-control}"
-    padding: ".65rem .9rem"
+    padding: ".75rem 1rem"
   admin-input:
     backgroundColor: "{colors.admin-paper}"
     textColor: "{colors.admin-ink}"
     rounded: "{rounded.admin-control}"
-    padding: ".65rem .75rem"
+    padding: ".75rem"
 ---
 
 # Design System: My brain is a goldmine
@@ -71,18 +102,20 @@ not a new public brand accent. Success/error messages use local status colors.
 ## Typography
 
 Public writing uses Tinos regular, with existing bold/italic variants, reducing
-to 15px at 482px and below. The shared header is 60px, reducing to 48px; its
+to 15px at 480px and below. The shared header is 60px, reducing to 48px; its
 face remains inherited rather than being reassigned to Tinos.
 
 Admin uses the system stack. Its site link and title input use Georgia/serif.
-BlockNote retains its supplied light-theme editing typography. The content-only
+Typography is not forced onto the 4px layout scale. BlockNote retains its supplied
+light-theme editing typography, spacing, and controls, without custom CSS hooks. The content-only
 preview loads public CSS and Tinos; it does not reproduce the whole homepage.
 
 ## Layout
 
 Preserve public page compositions and local overrides. Centered writing panels
-are 660px border-box, switching to 70vw at 660px and below, with top separation
-`min(15vw, 7vh)`. The introductory panel deliberately retains its different
+are 660px border-box, switching to 70vw rounded down to 4px at 660px and below,
+with top separation `min(15vw, 7vh)` rounded to the nearest 4px.
+The introductory panel deliberately retains its different
 box-sizing. Shared images normally use 90% width; collage rules remain local.
 
 Admin uses a `minmax(15rem, 19rem)` entry column and flexible writing area. At
@@ -98,8 +131,9 @@ BlockNote's supplied interface styling remains separately scoped.
 ## Shapes
 
 Public panels, links, and images retain solid borders. Admin buttons and inputs
-have square corners and thin borders. Do not impose admin geometry on artwork
-or third-party editor UI.
+have square corners and 4px borders. Site-owned artwork offsets and borders use
+the same 4px scale. Do not impose it on third-party editor UI or distort image
+aspect ratios to make intrinsic dimensions land on that scale.
 
 ## Components
 
@@ -122,5 +156,39 @@ status. Draft saving, content preview, and deliberate publication stay distinct.
 - Don't silently replace live content with a lossy editor import.
 - Don't promote legacy accessibility/geometry quirks into new component rules.
 
-Sources: `public/style.css`, `src/layouts/SiteLayout.astro`, shared public
-components/pages, `src/styles/admin.css`, and `src/components/admin/`.
+## Styling implementation
+
+Tailwind v4 runs through `@tailwindcss/vite`. `src/styles/tailwind.css` imports
+the theme and utilities without Preflight, so no broad reset changes original
+prose defaults or BlockNote/Mantine. Repeated semantic rules use Tailwind
+`@apply`; isolated artwork geometry remains ordinary CSS.
+
+Site-owned spacing and fixed dimensions use integer steps of `--spacing: .25rem`
+(4px at the default root size). Visible site borders use 4px, or zero when absent.
+Fluid artwork offsets use CSS `round()` with that same step rather than being
+replaced by fixed desktop coordinates. Full-size anchors, centering, image aspect
+ratios, typography, and third-party player/editor internals remain proportional.
+
+`src/styles/public.css` is emitted as a shared URL for both live public pages and
+sandboxed draft previews. `/style.css` remains an untouched archival asset and is
+not loaded by either. Admin rules target only site-owned classes; never add
+`.bn-*` / `.mantine-*` overrides, global control rules, or a custom BlockNote theme
+to force the editor onto the site scale. Tailwind needs no BlockNote adapter or
+compatibility switch. The supplied Mantine view remains in use.
+
+Public still-image variants use native Astro `Image` / `getImage()`; no global
+Astro responsive styles override the Tailwind artwork rules. Intrinsic image
+attributes plus `height: auto` preserve aspect ratios. Cafe/collage backgrounds
+use responsive CSS `image-set()` sources without changing their compositions.
+GIFs remain original. Optimization changes delivery, not BlockNote styling or
+stored content; see `docs/image-improvements.md` for caching and privacy boundaries.
+
+`test:visual` compares reviewed full-page screenshots in
+`tests/fixtures/tailwind-visuals/`, retaining full-page comparison artifacts against
+the original Git revision as historical evidence. To deliberately create new
+styling snapshots, run `npm run test:visual -- --update-baseline`, inspect all
+eight desktop/mobile captures, then rerun without that flag. Never regenerate
+`tests/fixtures/legacy.json` from the current app to accept a styling change.
+
+Sources: `src/styles/`, `src/layouts/SiteLayout.astro`, shared public
+components/pages, and `src/components/admin/`. Original reference: `public/style.css`.

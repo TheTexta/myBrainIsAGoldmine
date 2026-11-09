@@ -80,3 +80,93 @@ upload byte sealing, real embed playback, live session expiry and concurrent
 editing remain unaccepted. The owner's R2 variables are Sensitive and were not
 decrypted; presence alone does not establish valid S3 credentials. Follow the
 remaining acceptance checklist in `publishing.md` before public launch.
+
+## Tailwind styling migration — 2026-11-09
+
+Site-owned styles now use Tailwind 4.3.5 through its Vite plugin. The owner chose
+a 4px scale for layout, artwork positioning, and visible site borders, then
+explicitly excluded manual BlockNote CSS-hook customization. Preflight is omitted;
+the existing BlockNote/Mantine light view retains its supplied typography,
+spacing, borders, toolbars, and menus. Public/admin font sizes remain unchanged.
+The old `.bn-editor` padding override and element-wide admin control styles were
+removed rather than carried into Tailwind.
+
+Verified locally on Node 22.23.4:
+
+- Astro check: no errors/warnings; the existing beforeunload compatibility hint remains.
+- All 10 unit tests and 32 desktop/mobile browser tests passed. Added tests cover
+  compiled public CSS, 4px artwork/layout/borders, shared preview styles, and
+  unchanged BlockNote text/box metrics with the site stylesheet disabled.
+- Eight full-page Tailwind visual snapshots passed with zero changed pixels on a
+  separate non-update run; no remote image/font failures. Desktop/mobile public
+  and admin screenshots were inspected. GIFs are frozen and player interiors
+  excluded as before. The new visual snapshots are separate from the immutable
+  original revision and `legacy.json`; original full-page comparison artifacts
+  remain available, but intentionally differ after the approved sizing changes.
+- Original content, URLs, embeds, media checksums, and unpublished PSD denial passed.
+  `/style.css` remains byte-identical archival source and is no longer loaded by
+  public pages or draft previews; both use the same compiled public stylesheet.
+- Development-mode checks passed at widths 390, 660, and 1440 for all four public
+  routes and the unconfigured admin page, with no horizontal overflow.
+- Local Vercel output/legacy aliases and the final ordinary Node build passed.
+  The final build was restored after browser-fixture and Vercel builds.
+- Independent review's artwork-selector leak and below-fold visual-coverage
+  findings were fixed and rechecked. The mechanical detector reported preserved
+  typography/documentation advisories and the explicitly requested 4px structural
+  sidebar divider; no vendor CSS hooks were added. Existing type sizes are now
+  also recorded in DESIGN.md's frontmatter.
+
+The existing editor-only large-chunk warning and four moderate npm audit findings
+remain. No dependency advisory fixes, database migrations, production operations,
+image optimization, deployment, or public launch were included. Real authenticated
+production acceptance remains pending as documented above.
+
+## Native Astro images — 2026-11-09
+
+The owner selected optimization of existing public stills plus published R2
+uploads, then explicitly chose native same-origin Astro optimization with normal
+caching. Previously optimized public R2 copies may survive unpublishing. The
+original media route and private-preview paths remain unchanged; no custom
+optimizer guard, proxy, derivative route/cache, R2 writes, or schema changes were
+introduced. GIFs remain original. See `image-improvements.md` for the accepted
+cache boundary and native-probe latency limitation.
+
+Verified locally on Node 22.23.4:
+
+- Astro check passed without errors/warnings; the prior beforeunload hint remains.
+- 13 unit tests and 40 desktop/mobile browser tests passed. Coverage includes
+  native responsive URLs/dimensions/lazy loading, smaller actual image downloads,
+  published R2 optimization, untouched uploaded GIFs, signed private previews,
+  retained original bytes, original-route revocation, hover/srcset swaps, and
+  unchanged editor styling. An initial failed GIF check caught the fact that
+  `getImage()` reports the output format, not the source format; native
+  `inferRemoteSize()` now detects GIFs before constructing optimized URLs.
+  Protocol fixtures use HTTP R2, which the HTTPS-only renderer correctly rejects:
+  signed-read bytes are tested separately, and HTTPS signed-image rendering is
+  unit-tested. Real private-preview image playback remains an acceptance gate.
+  The last full browser run had 38 passes and two timing failures in the existing
+  authorization/outage checks; both passed on one focused `--last-failed` rerun
+  without changing their assertions. An earlier full 40-test run also passed.
+- Eight full-page visual baselines passed with zero changed pixels on a separate
+  non-update run; all local and WordPress images loaded successfully. Lazy images
+  are forced eager only inside the visual harness so below-fold failures are
+  checked. Desktop/mobile public captures were inspected, including artwork
+  transparency/alignment and comparison with the immutable original revision.
+- Native build output includes a 178,806-byte 1280px cafe background versus the
+  36,567,774-byte original; the 640px mirror variant is 23,358 bytes versus
+  1,715,740 original bytes. These are specific generated variants, not whole-page
+  transfer totals. Native browser tests check selected responsive downloads too.
+- Original media/source HTML and `legacy.json` remain unchanged. Static page
+  image comparisons retain canonical `data-original-src` identities rather than
+  requiring optimized delivery URLs to equal archival source URLs.
+- Vercel output passed, including legacy aliases and native `/_image` routing.
+  The ordinary Node build was restored afterward. This is build/routing evidence,
+  not a deployed Vercel-runtime or hosting-protection acceptance check.
+- Independent review found no blocking correctness/privacy issue. Native
+  per-render metadata latency and the lack of live Vercel execution coverage are
+  documented limitations; no bespoke caching/proxy mechanism was added. The
+  mechanical design detector returned no findings for the changed public UI.
+
+No deployment, public launch, production acceptance, credential/protection change,
+database migration, Worker change, original deletion, or WordPress storage
+migration occurred. Existing editor chunk-size/audit caveats remain unchanged.

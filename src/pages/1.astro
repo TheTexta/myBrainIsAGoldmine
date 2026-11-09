@@ -2,6 +2,9 @@
 import SiteLayout from '../layouts/SiteLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import { Image } from 'astro:assets';
+import { mirrorBase, mirrorScreen } from '../lib/images/sources';
+import { responsiveWidths } from '../lib/images/settings';
 ---
 
 <SiteLayout title="U wanna steal my swag 101">
@@ -9,20 +12,20 @@ import SiteFooter from '../components/SiteFooter.astro';
     <SiteHeader />
 
     <!-- Content Container -->
-    <div class="container" style="margin-top: 10vh;">
+    <div class="site-container intro-container">
         <div class="padding"></div>
         <div class="main">
             <p class="text tinos-regular">
                 Hi bitches im mallory U eat ass so much ass im the biggest ass eater of them all.
             </p>
             <div>
-                <img src="mirror_base.png" alt="">
-                <img src="mirror_screen.png" class="img-stack" alt="" id="mirror-screen">
+                <Image src={mirrorBase} widths={responsiveWidths(mirrorBase.width)} sizes="(max-width: 660px) 63vw, 592px" format="webp" quality={85} loading="eager" fetchpriority="high" alt="" data-original-src="mirror_base.png" />
+                <Image src={mirrorScreen} widths={responsiveWidths(mirrorScreen.width)} sizes="(max-width: 660px) calc(63vw + 28px), 620px" format="webp" quality={85} loading="eager" class="img-stack" alt="" id="mirror-screen" data-original-src="mirror_screen.png" />
             </div>
 
             <a href="12.html">ENTER</a>
         </div>
-        <div class="padding" style="transform: scaleX(-100%);"></div>
+        <div class="padding -scale-x-100"></div>
     </div>
     <SiteFooter />
 </SiteLayout>

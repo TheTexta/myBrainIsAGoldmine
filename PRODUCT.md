@@ -14,7 +14,7 @@ drafts, upload images, preview, and publish through BlockNote in the browser.
 
 ## Stack
 
-Astro, with a browser-only React/BlockNote editor. Supabase provides shared
+Astro and Tailwind v4, with a browser-only React/BlockNote editor. Supabase provides shared
 identity and site-isolated database permissions. New image originals use private
 R2 storage. Production activation is a separate approval gate.
 
@@ -25,7 +25,12 @@ R2 storage. Production activation is a separate approval gate.
   a replacement. HTML import can simplify layout; preview must make that visible.
 - Draft content and draft-only uploads must not be available anonymously.
 - Public visitors must not download editor dependencies.
-- Existing URLs, artwork, animation, and the public site's appearance are retained.
+- Existing URLs, artwork, animation, and the public site's visual identity are retained.
+- Site-owned layout, artwork offsets, and borders use a 4px scale. BlockNote and
+  Mantine retain their supplied styling; do not manually override their CSS hooks.
+- Public still images use native Astro responsive optimization, including
+  published R2 images. The owner accepts native cached copies outliving unpublish;
+  private previews never enter the optimizer, and originals remain retained.
 - Shared identity does not grant this site's editorial access.
 
 ## Evidence on hand

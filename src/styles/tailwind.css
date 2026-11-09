@@ -1,0 +1,15 @@
+/* Utilities without Preflight: legacy prose and BlockNote keep their own base styles. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme {
+    --spacing: 0.25rem;
+    --font-writing: "Tinos", serif;
+    --font-admin: system-ui, sans-serif;
+    --color-admin-ink: #161616;
+    --color-admin-canvas: #f4f4f4;
+    --color-admin-border: #777;
+    --color-admin-muted: #555;
+    --color-admin-focus: #3267b1;
+}

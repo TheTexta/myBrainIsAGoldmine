@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { createClient, type Session } from '@supabase/supabase-js';
 import { imageTypes, MAX_IMAGE_BYTES, mediaPath } from '../../lib/documents';
+import publicStyles from '../../styles/public.css?url';
 
 const DocumentEditor = lazy(() => import('./DocumentEditor'));
 interface Summary { id: string; title: string; revision: number; legacy_key: string | null; state: string; }
@@ -100,12 +101,12 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
     }
 
     function previewPage(html: string, title: string) {
-        return `<!doctype html><html><head><base href="${escape(window.location.origin)}/"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap"><style>.prose-link{display:inline;width:auto;margin:0;border:0;font:inherit;text-decoration:underline}.content{margin-top:2rem}</style></head><body><div class="content tinos-regular"><h1 class="title tinos-regular">${escape(title)}</h1>${html}</div></body></html>`;
+        return `<!doctype html><html><head><base href="${escape(window.location.origin)}/"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="${escape(publicStyles)}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap"><title>${escape(title)}</title></head><body><div class="content preview-content tinos-regular"><h1 class="title tinos-regular">${escape(title)}</h1>${html}</div></body></html>`;
     }
 
     return <div className="admin-app">
-        <header className="admin-header"><a href="/">My brain is a goldmine</a><h1>Publishing</h1>
-            {session && <button disabled={busy || uploads > 0} onClick={() => {
+        <header className="admin-header"><a className="admin-link" href="/">My brain is a goldmine</a><h1>Publishing</h1>
+            {session && <button className="admin-button" disabled={busy || uploads > 0} onClick={() => {
                 if (canLeave()) void run(async () => {
                     const { error } = await client.auth.signOut();
                     if (error) throw new Error('Sign-out failed. Please try again.');
@@ -121,37 +122,37 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
                 if (result.error) throw new Error('Sign-in failed. Check your email and password, then try again.');
             });
         }}>
-            <h2>Sign in to write</h2><p>Use your existing Supabase account. Access must be granted specifically for this site.</p>
-            <label htmlFor="email">Email</label><input id="email" name="email" type="email" autoComplete="username" required />
-            <label htmlFor="password">Password</label><input id="password" name="password" type="password" autoComplete="current-password" required />
-            <button disabled={busy} type="submit">{busy ? 'Signing in…' : 'Sign in'}</button>
+            <h2 className="admin-heading">Sign in to write</h2><p className="admin-copy">Use your existing Supabase account. Access must be granted specifically for this site.</p>
+            <label className="admin-label" htmlFor="email">Email</label><input className="admin-input" id="email" name="email" type="email" autoComplete="username" required />
+            <label className="admin-label" htmlFor="password">Password</label><input className="admin-input" id="password" name="password" type="password" autoComplete="current-password" required />
+            <button className="admin-button" disabled={busy} type="submit">{busy ? 'Signing in…' : 'Sign in'}</button>
         </form> : !authorized ? <p role="status">{error ? 'Sign out to use a different account, or ask the site owner to check your access.' : 'Checking editorial access…'}</p> : <div className="workspace">
-            <aside className="entry-list" aria-label="Entries"><h2>Entries</h2>
-                <button disabled={busy || uploads > 0} onClick={() => {
+            <aside className="entry-list" aria-label="Entries"><h2 className="admin-heading">Entries</h2>
+                <button className="admin-button" disabled={busy || uploads > 0} onClick={() => {
                     if (canLeave()) select({ id: crypto.randomUUID(), title: '', revision: 0, legacy_key: null, state: 'draft', document: [{ type: 'paragraph' }], legacyHtml: null });
                 }}>New entry</button>
-                <ul>{posts.map((item) => <li key={item.id}><button aria-current={item.id === post?.id ? 'true' : undefined} disabled={busy || uploads > 0} onClick={() => {
+                <ul>{posts.map((item) => <li key={item.id}><button className="admin-button" aria-current={item.id === post?.id ? 'true' : undefined} disabled={busy || uploads > 0} onClick={() => {
                     if (canLeave()) void run(async () => select(await api(`posts/${item.id}`)));
                 }}><span>{item.title}</span><small>{item.state === 'legacy' ? 'Original live' : item.state === 'published' ? 'Published' : item.state === 'hidden' ? 'Unpublished' : 'Draft'}</small></button></li>)}</ul>
             </aside>
-            <main className="writing-area">{!post ? <div className="editor-empty"><h2>Choose an entry, or start a new one.</h2><p>Saving a draft never changes the live site. Preview and publish when you are ready.</p></div> : <>
-                <label htmlFor="entry-title">Title</label><input id="entry-title" value={post.title} disabled={busy} maxLength={200} onChange={(event) => { setPost({ ...post, title: event.target.value }); setDirty(true); setPreview(null); }} />
+            <main className="writing-area">{!post ? <div className="editor-empty"><h2 className="admin-heading">Choose an entry, or start a new one.</h2><p className="admin-copy">Saving a draft never changes the live site. Preview and publish when you are ready.</p></div> : <>
+                <label className="admin-label" htmlFor="entry-title">Title</label><input className="admin-input" id="entry-title" value={post.title} disabled={busy} maxLength={200} onChange={(event) => { setPost({ ...post, title: event.target.value }); setDirty(true); setPreview(null); }} />
                 <div className="publishing-actions">
                     <span role="status">{uploads ? `Uploading ${uploads} image${uploads === 1 ? '' : 's'}…` : dirty ? 'Unsaved changes' : post.revision ? 'Draft saved' : 'Not saved yet'}</span>
-                    <button disabled={busy || uploads > 0 || !post.title.trim() || (!post.document && !importOriginal)} onClick={() => void run(async () => { await save(); })}>Save draft</button>
-                    <button disabled={busy || uploads > 0 || !post.title.trim() || (!post.document && !importOriginal)} onClick={() => void run(async () => {
+                    <button className="admin-button" disabled={busy || uploads > 0 || !post.title.trim() || (!post.document && !importOriginal)} onClick={() => void run(async () => { await save(); })}>Save draft</button>
+                    <button className="admin-button" disabled={busy || uploads > 0 || !post.title.trim() || (!post.document && !importOriginal)} onClick={() => void run(async () => {
                         const saved = dirty || !post.revision ? await save() : post;
                         if (!saved) return;
                         const result = await api('preview', { document: document.current });
                         setPreview({ html: previewPage(result.html, saved.title), revision: saved.revision });
                         setNotice('Preview ready. Review the layout below before publishing.');
                     })}>Preview</button>
-                    <button className="primary" disabled={busy || uploads > 0 || dirty || !preview || preview.revision !== post.revision} onClick={() => void run(async () => {
+                    <button className="admin-button primary" disabled={busy || uploads > 0 || dirty || !preview || preview.revision !== post.revision} onClick={() => void run(async () => {
                         const result = await api('publish', { id: post.id, revision: post.revision, action: 'publish' });
                         setPost({ ...post, ...result }); setPosts((current) => current.map((item) => item.id === post.id ? { ...item, ...result } : item)); setPreview(null);
                         setNotice('Published. The live site now shows this version.');
                     })}>Publish</button>
-                    {(post.state === 'published' || post.state === 'legacy') && <button disabled={busy || uploads > 0 || dirty} onClick={() => {
+                    {(post.state === 'published' || post.state === 'legacy') && <button className="admin-button" disabled={busy || uploads > 0 || dirty} onClick={() => {
                         if (window.confirm('Remove this entry from the live site? Your saved draft and images will be retained.')) void run(async () => {
                             const result = await api('publish', { id: post.id, revision: post.revision, action: 'hide' });
                             setPost({ ...post, ...result }); setPosts((current) => current.map((item) => item.id === post.id ? { ...item, ...result } : item)); setPreview(null);
@@ -159,12 +160,12 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
                         });
                     }}>Unpublish</button>}
                 </div>
-                {!post.document && !importOriginal ? <div className="original-notice"><h2>{post.state === 'legacy' ? 'The original is still live.' : 'The original is retained.'}</h2><p>Import it into BlockNote to edit. Importing can simplify galleries, spacing, and formatting; nothing changes publicly until you preview and publish.</p>
-                    <button onClick={() => setImportOriginal(true)}>Import original into BlockNote</button></div> : <Suspense fallback={<p role="status">Loading BlockNote…</p>}>
+                {!post.document && !importOriginal ? <div className="original-notice"><h2 className="admin-heading">{post.state === 'legacy' ? 'The original is still live.' : 'The original is retained.'}</h2><p className="admin-copy">Import it into BlockNote to edit. Importing can simplify galleries, spacing, and formatting; nothing changes publicly until you preview and publish.</p>
+                    <button className="admin-button" onClick={() => setImportOriginal(true)}>Import original into BlockNote</button></div> : <Suspense fallback={<p className="admin-copy" role="status">Loading BlockNote…</p>}>
                     <DocumentEditor key={post.id} initialContent={post.document} legacyHtml={post.legacyHtml} disabled={busy} onChange={changed} onError={setError} uploadFile={uploadFile}
                         resolveFileUrl={async (value) => mediaPath.test(value) ? (await api(`media/${value.slice(7)}`)).url : value} />
                 </Suspense>}
-                {preview && <section className="preview"><h2>Saved draft preview</h2><p>This is a preview, not the live site. Embedded players may require opening the published page.</p>
+                {preview && <section className="preview"><h2 className="admin-heading">Saved draft preview</h2><p className="admin-copy">This is a preview, not the live site. Embedded players may require opening the published page.</p>
                     <iframe title="Saved draft preview" sandbox="allow-scripts" srcDoc={preview.html} /></section>}
             </>}</main>
         </div>}

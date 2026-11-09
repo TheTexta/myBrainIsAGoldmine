@@ -4,18 +4,22 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CatToggle from '../components/CatToggle.astro';
 import { loadFeed, type FeedEntry } from '../lib/feed';
+import { responsiveImages } from '../lib/images/public';
 
 export const prerender = false;
 let groups: FeedEntry[][] = [];
 let unavailable = false;
-try { groups = await loadFeed(); }
+try {
+    groups = await loadFeed();
+    await Promise.all(groups.flat().map(async (entry) => { entry.html = await responsiveImages(entry.html, Astro.url.origin); }));
+}
 catch { unavailable = true; Astro.response.status = 503; }
 Astro.response.headers.set('Cache-Control', 'no-store');
 ---
 
 <SiteLayout title="U wanna steal my swag 101">
     <SiteHeader interactive />
-    <div class="container" style="margin-bottom: min(15vw,7vh);">
+    <div class="site-container feed-container">
         <CatToggle />
         {unavailable ? (
             <div class="content tinos-regular"><h1>Back soon.</h1><p>The writing is temporarily unavailable. Please try again in a moment.</p></div>
@@ -33,7 +37,3 @@ Astro.response.headers.set('Cache-Control', 'no-store');
     <SiteFooter />
     <script is:inline src="https://videopress.com/videopress-iframe.js"></script>
 </SiteLayout>
-
-<style is:global>
-    .content .prose-link { display: inline; width: auto; margin: 0; border: none; font: inherit; text-decoration: underline; }
-</style>

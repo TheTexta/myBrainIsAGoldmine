@@ -1,17 +1,14 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { cafe } from '../lib/images/sources';
+import { artworkBackground } from '../lib/images/public';
+
+const background = await artworkBackground(cafe, { small: [960, 1920], medium: [1280, 2560], large: [1920, 3840] });
 ---
 
-<SiteLayout title="Cafe at the end of the world">
+<SiteLayout title="Cafe at the end of the world" bodyClass="artwork-3" bodyStyle={background}>
     <div class="fun-container">
-    <a href="index.html" style="filter:grayscale(1)" class="back-button">bye!!!!!!!!!!!!!!</a>
+    <a href="index.html" class="back-button grayscale">bye!!!!!!!!!!!!!!</a>
     </div>
 
-<style slot="head" is:inline>
-    body {
-        background-image: url(3.png);
-        background-size: auto 100vh;
-        background-position: center top;
-    }
-</style>
 </SiteLayout>

@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { localRequestsOnly } from '../support/browser';
 
 async function signIn(page: Page, email = 'editor@local.test') {
     await page.goto('/admin');
@@ -10,7 +11,7 @@ async function signIn(page: Page, email = 'editor@local.test') {
 }
 test.beforeEach(async ({ page, request }) => {
     await request.post('http://127.0.0.1:54329/__reset');
-    await page.route('**/*', (route) => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
+    await page.route('**/*', localRequestsOnly);
 });
 
 test('writes, saves privately, previews, publishes, uploads, and unpublishes', async ({ page, request }, testInfo) => {
@@ -26,6 +27,10 @@ test('writes, saves privately, previews, publishes, uploads, and unpublishes', a
     await page.getByRole('button', { name: 'Preview', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Publish', exact: true })).toBeEnabled();
     await expect(page.frameLocator('iframe[title="Saved draft preview"]').locator('link[href*="family=Tinos"]')).toHaveCount(1);
+    const preview = page.frameLocator('iframe[title="Saved draft preview"]');
+    await expect(preview.locator('link[rel="stylesheet"]').first()).toHaveAttribute('href', /\/_astro\/public\.[\w-]+\.css$/);
+    await expect(preview.locator('.content')).toHaveCSS('border-top-width', '4px');
+    await expect(preview.locator('.content')).toHaveCSS('padding-top', '16px');
     await page.getByRole('button', { name: 'Publish', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Published. The live site' })).toBeVisible();
     expect(await (await request.get('/')).text()).toContain('Words saved in BlockNote, not MDX.');
@@ -56,6 +61,31 @@ test('writes, saves privately, previews, publishes, uploads, and unpublishes', a
     expect(await (await request.get('/')).text()).not.toContain('A new BlockNote entry');
     expect((await request.get(media.url)).status()).toBe(404);
     expect(errors).toEqual([]);
+});
+
+test('keeps BlockNote typography and geometry independent of site styling', async ({ page }) => {
+    await signIn(page);
+    await page.getByRole('button', { name: 'New entry', exact: true }).click();
+    await expect(page.locator('.bn-editor')).toBeVisible();
+    const metrics = await page.evaluate(async () => {
+        await document.fonts.ready;
+        const stylesheet = [...document.styleSheets].find((sheet) => sheet.href?.includes('/_astro/admin.'));
+        if (!stylesheet) throw new Error('The site admin stylesheet is missing.');
+        const read = () => ['.bn-editor', '.bn-block-content'].map((selector) => {
+            const element = document.querySelector(selector)!;
+            const style = getComputedStyle(element);
+            return [style.fontFamily, style.fontSize, style.lineHeight, style.padding, style.borderWidth];
+        });
+        const withSiteStyles = read();
+        stylesheet.disabled = true;
+        const vendorOnly = read();
+        stylesheet.disabled = false;
+        return { withSiteStyles, vendorOnly };
+    });
+    expect(metrics.withSiteStyles).toEqual(metrics.vendorOnly);
+    const siteCss = await readFile('src/styles/admin.css', 'utf8');
+    expect(siteCss).not.toMatch(/\.(?:bn-|mantine-)/);
+    await expect(page.getByRole('button', { name: 'Save draft', exact: true })).toHaveCSS('border-top-width', '4px');
 });
 
 test('imports existing writing and retains Spotify embeds without publishing on save', async ({ page, request }) => {

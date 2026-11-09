@@ -81,8 +81,8 @@ export default function DocumentEditor({ initialContent, legacyHtml, disabled, o
     return <>
         <details className="editor-tools">
         <summary>Images and embeds</summary>
-        <label className="image-upload" htmlFor="image-upload">Upload image
-            <input id="image-upload" type="file" accept="image/jpeg,image/png,image/gif,image/webp" disabled={disabled || importing} onChange={async (event) => {
+        <label className="admin-label image-upload" htmlFor="image-upload">Upload image
+            <input className="admin-input" id="image-upload" type="file" accept="image/jpeg,image/png,image/gif,image/webp" disabled={disabled || importing} onChange={async (event) => {
                 const file = event.currentTarget.files?.[0];
                 event.currentTarget.value = '';
                 if (!file) return;
@@ -100,12 +100,12 @@ export default function DocumentEditor({ initialContent, legacyHtml, disabled, o
             editor.insertBlocks([{ type: 'embed', props: { url } }], editor.getTextCursorPosition().block, 'after');
             setEmbed(''); onChange(editor.document); editor.focus();
         }}>
-            <label htmlFor="embed-url">Music or video URL</label>
-            <div><input id="embed-url" type="url" value={embed} disabled={disabled || importing} onChange={(event) => setEmbed(event.target.value)} placeholder="Spotify or VideoPress" />
-                <button type="submit" disabled={disabled || importing || !embed}>Insert embed</button></div>
+            <label className="admin-label" htmlFor="embed-url">Music or video URL</label>
+            <div><input className="admin-input" id="embed-url" type="url" value={embed} disabled={disabled || importing} onChange={(event) => setEmbed(event.target.value)} placeholder="Spotify or VideoPress" />
+                <button className="admin-button" type="submit" disabled={disabled || importing || !embed}>Insert embed</button></div>
         </form>
         </details>
-        {importing && <p role="status">Importing the original writing…</p>}
+        {importing && <p className="admin-copy" role="status">Importing the original writing…</p>}
         <BlockNoteView editor={editor} theme="light" editable={!importing && !disabled} onChange={() => onChange(editor.document)} />
     </>;
 }

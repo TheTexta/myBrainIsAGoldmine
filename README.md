@@ -1,6 +1,6 @@
 # My brain is a goldmine
 
-Faithful Astro conversion of Mallory's site, with a browser-based BlockNote
+Astro conversion of Mallory's site, with Tailwind-based styling and a browser-based BlockNote
 publishing editor. **A protected Vercel preview is deployed; public launch and
 authenticated upload/publishing acceptance remain pending.** The owner approved
 activation on 2026-10-30. Supabase migration, one editor grant, private R2 storage,
@@ -42,7 +42,10 @@ with no ports or persistent volumes. It does not connect to Supabase or apply SQ
 outside that container, and refuses remote Docker endpoints. `test:visual`
 explicitly disables Supabase for the archival comparison, needs Git/Python, and
 fetches public fonts/images; GIF first frames are frozen and player interiors
-are excluded. `npm test` runs checks, unit tests, and browser tests;
+are excluded. It checks the separately reviewed Tailwind full-page snapshots and
+reports full-page differences against the original conversion reference. The
+original revision and checksums are not regenerated to accept styling changes.
+`npm test` runs checks, unit tests, and browser tests;
 run the database suite separately. After browser tests, run `npm run build` again
 before using the build for anything else: test builds contain fake public config.
 
@@ -85,13 +88,30 @@ require a rebuild; the three artwork/splash pages remain static.
 - `src/content/legacy.ts` — stable original entry IDs and panel boundaries.
 - `src/lib/documents.ts` — bounded JSON validation and escaped public HTML renderer.
 - `src/components/admin/` — isolated React/BlockNote publishing UI.
+- `src/styles/` — Tailwind v4 tokens and site-owned public/admin styles. Preflight
+  is omitted; BlockNote/Mantine supplies its own editor styling without custom
+  CSS hooks. See [styling conventions](DESIGN.md#styling-implementation).
 - `src/pages/api/admin/` — authenticated editor endpoints.
 - `supabase/migrations/` — site-owned SQL, **not applied automatically**.
-- `public/` — original published assets and stylesheet, byte-preserved. PSD source
+- `public/` — original published assets and archival stylesheet, byte-preserved.
+  Live pages and draft previews use compiled `src/styles/public.css`, not the
+  retained `/style.css`. PSD source
   files remain at the repository root, outside the published output.
 - `tests/fixtures/legacy.json` — hashes captured from original revision
   `2773eda0194d60270857693f32b2efb9f69230e0`; do not regenerate from the new site
   simply to make a fidelity failure pass.
 
-See [staged image improvements](docs/image-improvements.md) for the remaining
-optimization work. Existing WordPress image URLs are intentionally unchanged.
+## Responsive images
+
+Public still images use Astro's native `Image` / `getImage()` pipeline with
+responsive sizes and WebP output. This includes local feed images, the sixteen
+existing WordPress images, mirror/collage artwork, and the large cafe background.
+Original files and URLs remain available; original content/documents are not
+rewritten. GIFs and BlockNote's private editor/preview images remain unprocessed.
+
+Published R2 images use the same native optimizer against their same-origin
+`/media/<uuid>` URL. **The owner accepts normal Astro caching:** an optimized copy
+of a previously published image may remain available after unpublishing. The
+original media route still checks current publication; drafts are never sent to
+the optimizer. No custom optimizer middleware, derivative endpoint, R2 cache,
+Worker, or database migration is used. See [image delivery](docs/image-improvements.md).
