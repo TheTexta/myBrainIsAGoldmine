@@ -34,6 +34,18 @@ This is local source work, not a deployment or proof of production acceptance.
   This is not a WordPress source/storage migration.
 - GIFs remain original, including glitter, fog, cat states, and uploaded GIFs.
   No animation is flattened into a still image.
+- The cat toggle uses Astro `Image` with a public GIF URL and explicit intrinsic
+  dimensions. This is a passthrough component, not a GIF transformation. Its
+  script updates the height for each original state (150×229 / 150×329). All
+  live Astro template images now use `Image`; archived HTML and BlockNote's safe
+  string renderer deliberately retain HTML image tags. Public stills in those
+  strings already receive native optimization through `getImage()`.
+- In development, successfully optimized feed images receive Astro's
+  `data-image-component` audit marker, matching Astro's own HTML content renderer.
+  Without it the toolbar incorrectly recommends `Image` even when `getImage()`
+  has already generated responsive variants. Untouched/failed optimization paths
+  are not marked, production HTML omits the marker, and the audit stays enabled.
+  Run `npm run test:images:dev` to check the development-only behavior.
 
 ### Published R2 uploads and native caching
 

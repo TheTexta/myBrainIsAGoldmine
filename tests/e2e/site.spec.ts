@@ -81,9 +81,13 @@ test('keeps editor bundles off the homepage and retains cat/navigation behavior'
     expect(scripts.some((url) => /AdminApp|DocumentEditor|BlockNote/i.test(url))).toBe(false);
     await expect(page.locator('#cat-button')).toBeHidden();
     await page.locator('#cat').click();
-    await expect(page.locator('#cat')).toHaveAttribute('src', 'mal the cat.gif');
+    await expect(page.locator('#cat')).toHaveAttribute('src', '/mal the cat.gif');
+    await expect(page.locator('#cat')).toHaveAttribute('height', '329');
+    await expect(page.locator('#cat')).not.toHaveAttribute('srcset');
     await expect(page.locator('#cat-button')).toBeVisible();
     await page.locator('#cat').click();
+    await expect(page.locator('#cat')).toHaveAttribute('src', '/Mal the Cat Normal.gif');
+    await expect(page.locator('#cat')).toHaveAttribute('height', '229');
     await expect(page.locator('#cat-button')).toBeHidden();
     await page.getByRole('button', { name: 'U WANNA STEAL MY SWAG' }).click();
     await expect(page).toHaveURL(/\/12.html$/);

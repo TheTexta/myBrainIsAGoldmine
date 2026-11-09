@@ -19,9 +19,15 @@ test('serves responsive still images, keeps GIFs original, and downloads a small
         await expect(image).toHaveAttribute('width', /^\d+$/);
         await expect(image).toHaveAttribute('height', /^\d+$/);
         await expect(image).toHaveAttribute('loading', 'lazy');
+        await expect(image).not.toHaveAttribute('data-image-component'); // DEV-only audit metadata.
     }
-    await expect(page.locator('#cat')).toHaveAttribute('src', 'Mal the Cat Normal.gif');
+    await expect(page.locator('#cat')).toHaveAttribute('src', '/Mal the Cat Normal.gif');
+    await expect(page.locator('#cat')).toHaveAttribute('width', '150');
+    await expect(page.locator('#cat')).toHaveAttribute('height', '229');
+    await expect(page.locator('#cat')).toHaveAttribute('loading', 'eager');
     await expect(page.locator('#cat')).not.toHaveAttribute('srcset');
+    const catSource = await page.locator('#cat').evaluate(async (element: HTMLImageElement) => { await element.decode(); return element.currentSrc; });
+    expect(await (await request.get(catSource)).body()).toEqual(await readFile('public/Mal the Cat Normal.gif'));
     await page.goto('/1.html');
     const image = page.locator('img[data-original-src="mirror_base.png"]');
     await expect(image).toHaveAttribute('loading', 'eager');

@@ -27,6 +27,7 @@ explains the missing setup. The old `/index.html`, `/1.html`, `/12.html`, and
 ```sh
 npm run check
 npm run test:unit
+npm run test:images:dev
 npx playwright install chromium
 npm run test:e2e
 npm run test:db

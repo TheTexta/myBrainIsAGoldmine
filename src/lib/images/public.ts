@@ -35,10 +35,15 @@ export async function responsiveImages(html: string, origin: string): Promise<st
             const cap = style.match(/(?:max-width:\s*|width:min\(90%,)(\d+(?:\.\d+)?)px/)?.[1];
             const sizes = gallery ? gallerySizes : cap
                 ? `(max-width: 660px) min(${cap}px, calc(63vw - 36px)), min(${cap}px, 556px)` : proseSizes;
-            const optimized = await getImage({ src: local ?? (uploaded ? new URL(src, origin).href : src),
+            const imageSource = local ?? (uploaded ? new URL(src, origin).href : src);
+            const optimized = await getImage({ src: imageSource,
                 width, height, widths: responsiveWidths(width), sizes, format: 'webp', quality: 85 });
-            const attributes = { src: optimized.src, srcset: optimized.srcSet.attribute, sizes,
+            const attributes: Record<string, string> = { src: optimized.src, srcset: optimized.srcSet.attribute, sizes,
                 width: String(width), height: String(height), loading: 'lazy', decoding: 'async', 'data-original-src': src };
+            // Match Astro's own HTML content renderer. Its toolbar recognizes
+            // getImage output through this DEV-only marker, not through srcset.
+            const originalSource = typeof imageSource === 'string' ? imageSource : imageSource.src;
+            if (import.meta.env.DEV && optimized.src !== originalSource) attributes['data-image-component'] = 'true';
             for (const [name, value] of Object.entries(attributes)) {
                 const existing = image.attrs.find((attr) => attr.name === name);
                 if (existing) existing.value = value;

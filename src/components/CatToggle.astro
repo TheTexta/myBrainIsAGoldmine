@@ -1,4 +1,9 @@
-<img id="cat" class="cat" src="Mal the Cat Normal.gif" alt="">
+---
+import { Image } from 'astro:assets';
+---
+
+<Image id="cat" class="cat" src="/Mal the Cat Normal.gif" width={150} height={229}
+    loading="eager" alt="" data-original-src="Mal the Cat Normal.gif" />
 <a id="cat-button" class="cat-link" href="https://ca.pinterest.com/mallorywebberr/">PINTEREST</a>
 
 <script>
@@ -8,7 +13,9 @@
     if (cat && catButton) {
         cat.addEventListener('click', () => {
             const isOpen = catButton.style.display === 'block';
-            cat.src = isOpen ? 'Mal the Cat Normal.gif' : 'mal the cat.gif';
+            cat.src = isOpen ? '/Mal the Cat Normal.gif' : '/mal the cat.gif';
+            cat.height = isOpen ? 229 : 329;
+            cat.dataset.originalSrc = isOpen ? 'Mal the Cat Normal.gif' : 'mal the cat.gif';
             cat.style.cursor = isOpen ? 'pointer' : 'inherit';
             catButton.style.display = isOpen ? 'none' : 'block';
         });

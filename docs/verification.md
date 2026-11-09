@@ -170,3 +170,29 @@ Verified locally on Node 22.23.4:
 No deployment, public launch, production acceptance, credential/protection change,
 database migration, Worker change, original deletion, or WordPress storage
 migration occurred. Existing editor chunk-size/audit caveats remain unchanged.
+
+### Remaining template image — 2026-11-09
+
+Converted the cat toggle to Astro `Image` using untouched public GIF URLs and
+explicit per-state dimensions. No raw `<img>` tags remain in `.astro` templates;
+archival HTML and BlockNote string rendering deliberately retain them. Both
+original GIFs still have sixteen frames. Astro check, 13 unit tests, 12 focused
+desktop/mobile image/content/navigation checks, eight unchanged full-page visual
+snapshots, Vercel output, and the final Node build passed. The initial browser
+attempt encountered a temporary occupied fixture port; retry passed without
+reusing or stopping user servers, changing assertions, or updating baselines.
+
+### Development toolbar image audit — 2026-11-09
+
+Reproduced all twenty optimized post images matching Astro's
+`perf-use-image-component` selector because the HTML renderer omitted the
+development-only audit marker. Astro's own content renderer adds that same marker
+after `getImage()`. Successfully transformed post images now follow this native
+convention; unchanged/failed sources are not marked and production omits it.
+The running development page was checked against Astro's actual audit rule:
+twenty optimized/recognized post images, zero image-component audit candidates.
+No BlockNote import, archived HTML rewrite, or global audit suppression occurred.
+The new isolated `test:images:dev` regression passed, as did Astro check, 13 unit
+tests, 12 focused desktop/mobile browser checks (including production marker
+absence), eight unchanged visual snapshots, Vercel output, and the restored Node
+build. The user's existing development server was not restarted or stopped.

@@ -14,6 +14,7 @@
     "check": "astro check",
     "test:e2e": "playwright test",
     "test:unit": "vitest run",
+    "test:images:dev": "PUBLIC_SUPABASE_URL= PUBLIC_SUPABASE_ANON_KEY= node scripts/check-dev-images.mjs",
     "test:db": "node scripts/test-db.mjs",
     "test:visual": "PUBLIC_SUPABASE_URL= PUBLIC_SUPABASE_ANON_KEY= npm run build && node scripts/verify-legacy-visuals.mjs",
     "test:vercel": "VERCEL=1 astro build && node scripts/check-vercel-output.mjs",
