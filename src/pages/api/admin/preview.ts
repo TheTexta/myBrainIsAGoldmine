@@ -4,6 +4,7 @@ import { parseDocument, renderDocument, type DocumentBlock } from '../../../lib/
 import { privateImageUrl } from '../../../lib/media-server';
 import { endpoint, json, readJson, requireEditor } from '../../../lib/server';
 import { accessiblePostMarkup } from '../../../lib/content-accessibility';
+import { postPaperUrl } from '../../../lib/images/paper';
 
 export const prerender = false;
 export const POST: APIRoute = ({ request }) => endpoint(async () => {
@@ -17,5 +18,5 @@ export const POST: APIRoute = ({ request }) => endpoint(async () => {
         }));
     };
     await resolve(document);
-    return json({ html: accessiblePostMarkup(renderDocument(document), body.title || 'Draft preview') });
+    return json({ html: accessiblePostMarkup(renderDocument(document), body.title || 'Draft preview'), paperUrl: await postPaperUrl() });
 });

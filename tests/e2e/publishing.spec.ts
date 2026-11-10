@@ -48,7 +48,12 @@ test('writes, saves privately, previews, publishes, uploads, and unpublishes', a
     await expect(preview.locator('link[href*="family=Tinos"]')).toHaveCount(1);
     await expect(preview.locator('link[rel="stylesheet"]').first()).toHaveAttribute('href', /\/_astro\/public\.[\w-]+\.css$/);
     await expect(preview.locator('.content')).toHaveCSS('border-top-width', '0px');
-    await expect(preview.locator('.content')).toHaveCSS('padding-top', testInfo.project.name === 'mobile' ? '8px' : '16px');
+    await expect(preview.locator('.content')).toHaveCSS('background-image', /white-recycle-paper-texture/);
+    await expect(preview.locator('.content')).toHaveCSS('color', 'rgb(24, 24, 24)');
+    expect(await preview.locator('body').evaluate((element) => element.style.getPropertyValue('--post-paper'))).toBe('');
+    await expect(preview.locator('.content')).toHaveCSS('padding-top', '0px');
+    await expect(preview.locator('.content')).toHaveCSS('padding-bottom', '0px');
+    await expect(preview.locator('.content')).toHaveCSS('padding-left', testInfo.project.name === 'mobile' ? '4px' : '0px');
     await page.getByRole('button', { name: 'Write', exact: true }).click();
     await expect(page.locator('.bn-editor img')).toHaveCount(1);
     await expect(page.getByRole('button', { name: 'Update live post', exact: true })).toBeEnabled();
@@ -61,7 +66,8 @@ test('writes, saves privately, previews, publishes, uploads, and unpublishes', a
     await request.put(reservation.url, { data: Buffer.alloc(original.length, 0), headers: { 'Content-Type': 'image/png' } });
     expect(await (await request.get(media.url)).body()).toEqual(original);
     page.once('dialog', (dialog) => dialog.accept());
-    await page.getByText('More', { exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Unpublish', exact: true })).toBeVisible();
+    await expect(page.locator('details').filter({ has: page.getByRole('button', { name: 'Unpublish', exact: true }) })).toHaveCount(0);
     await page.getByRole('button', { name: 'Unpublish', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Unpublished. Your saved draft' })).toBeVisible();
     expect(await (await request.get('/')).text()).not.toContain('A new BlockNote entry');
@@ -92,6 +98,39 @@ test('keeps BlockNote typography and geometry independent of site styling', asyn
     const siteCss = await readFile('src/styles/admin.css', 'utf8');
     expect(siteCss).not.toMatch(/\.(?:bn-|mantine-)/);
     await expect(page.getByRole('button', { name: 'Save draft', exact: true })).toHaveCSS('border-top-width', '4px');
+});
+
+test('keeps mobile publishing controls visible without a stretched entry picker', async ({ page }, testInfo) => {
+    await signIn(page);
+    await page.getByRole('button', { name: 'New entry', exact: true }).click();
+    await page.getByLabel('Title', { exact: true }).fill('A long entry title that stays usable on a narrow phone');
+    await page.locator('.bn-editor').fill('Mobile publishing without hidden actions.');
+    await page.getByRole('button', { name: 'Publish', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Live · all changes published' })).toBeVisible();
+    for (const width of [320, 390, 760, 768, 1024]) {
+        await page.setViewportSize({ width, height: 844 });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+        for (const name of ['Save draft', 'Update live post', 'Unpublish']) {
+            const button = page.getByRole('button', { name, exact: true });
+            await expect(button).toBeVisible();
+            const bounds = await button.boundingBox();
+            expect(bounds!.height).toBeGreaterThanOrEqual(44);
+            expect(bounds!.x).toBeGreaterThanOrEqual(0);
+            expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+        }
+        if (width <= 760) expect((await page.getByRole('complementary', { name: 'Entries' }).boundingBox())!.height).toBeLessThan(100);
+    }
+    await page.setViewportSize(testInfo.project.use.viewport!);
+    await page.screenshot({ path: `.impeccable/review/admin-live-${testInfo.project.name}.png`, fullPage: true });
+    await page.getByLabel('Title', { exact: true }).fill('Keep these unsaved edits');
+    await expect(page.getByRole('button', { name: 'Unpublish', exact: true })).toBeDisabled();
+    await expect(page.getByText('Save your draft before unpublishing.', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Unpublish', exact: true })).toBeEnabled();
+    page.once('dialog', (dialog) => dialog.dismiss());
+    await page.getByRole('button', { name: 'Unpublish', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Draft saved · changes not published' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Unpublish', exact: true })).toBeEnabled();
 });
 
 test('imports existing writing and retains Spotify embeds without publishing on save', async ({ page, request }) => {

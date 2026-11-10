@@ -7,6 +7,9 @@ import { loadFeed, type FeedEntry } from '../lib/feed';
 import { responsiveImages } from '../lib/images/public';
 import { accessiblePostMarkup } from '../lib/content-accessibility';
 import ImageViewer from '../components/ImageViewer.astro';
+import CrtOverlay from '../components/CrtOverlay.astro';
+import FloatingImages from '../components/FloatingImages.astro';
+import { postPaperUrl } from '../lib/images/paper';
 
 export const prerender = false;
 let groups: FeedEntry[][] = [];
@@ -17,26 +20,29 @@ try {
 }
 catch { unavailable = true; Astro.response.status = 503; }
 Astro.response.headers.set('Cache-Control', 'no-store');
+const paperStyle = `--post-paper:url("${await postPaperUrl()}")`;
 ---
 
-<SiteLayout title="U wanna steal my swag 101">
+<SiteLayout title="U wanna steal my swag 101" bodyClass="reading-page">
+    <CrtOverlay />
+    <FloatingImages />
     <SiteHeader interactive />
     <div class="site-container feed-container">
         <CatToggle />
         {unavailable ? (
-            <div class="content tinos-regular"><h1>Back soon.</h1><p>The writing is temporarily unavailable. Please try again in a moment.</p></div>
-        ) : groups.map((entries) => (
-            <div class="content tinos-regular">
-                {entries.map((entry) => (
-                    <>
-                        {!entry.legacy && <h1 class="title tinos-regular">{entry.title}</h1>}
-                        <Fragment set:html={entry.html} />
-                    </>
-                ))}
+            <div class="content tinos-regular" style={paperStyle}><h1>Back soon.</h1><p>The writing is temporarily unavailable. Please try again in a moment.</p></div>
+        ) : groups.flat().map((entry) => (
+            <div class="content tinos-regular" data-post-id={entry.id} style={paperStyle}>
+                {!entry.legacy && <h1 class="title tinos-regular">{entry.title}</h1>}
+                <Fragment set:html={entry.html} />
             </div>
         ))}
     </div>
     <SiteFooter />
     <ImageViewer />
+    <script>
+        import { mountGlitterParallax } from '../lib/glitter-parallax';
+        mountGlitterParallax();
+    </script>
     <script is:inline src="https://videopress.com/videopress-iframe.js"></script>
 </SiteLayout>

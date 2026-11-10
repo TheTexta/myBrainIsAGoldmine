@@ -44,12 +44,14 @@ for (const [path, baseline] of Object.entries(legacy.pages)) {
         const snapshot = await page.evaluate(() => ({
             title: document.title,
             text: [...document.querySelectorAll('header,h1,h2,p,li,button,a')].filter((el) => !el.closest('[data-ui]')).map((el) => [el.tagName, el.textContent!.replace(/\s+/g, ' ').trim()]),
-            images: [...document.images].filter((el) => !el.closest('#post-image-viewer')).map((el) => [el.getAttribute('data-original-src') ?? el.getAttribute('src'), el.getAttribute('id')]),
+            images: [...document.images].filter((el) => !el.closest('#post-image-viewer, [data-floating-images]')).map((el) => [el.getAttribute('data-original-src') ?? el.getAttribute('src'), el.getAttribute('id')]),
             embeds: [...document.querySelectorAll('iframe')].map((el) => [...el.attributes].filter((a) => a.name !== 'title').map((a) => [a.name, a.value]).sort()),
             links: [...document.querySelectorAll('a')].filter((el) => !el.closest('[data-ui]')).map((el) => [el.getAttribute('href'), el.textContent!.replace(/\s+/g, ' ').trim()]),
             contentSections: document.querySelectorAll('.content').length,
         }));
-        expect(snapshot.title).toBe(baseline.title); expect(snapshot.contentSections).toBe(baseline.contentSections);
+        expect(snapshot.title).toBe(baseline.title);
+        // Approved layout: one paper container per entry, not the seven archival groups.
+        expect(snapshot.contentSections).toBe(path === '/index.html' ? 11 : baseline.contentSections);
         expect(snapshot.images).toEqual(originalImages(path));
         expect(snapshot.embeds).toEqual(originalEmbeds(path)); // Titles are intentionally improved for accessibility.
         for (const key of ['text', 'links'] as const) expect(hash(snapshot[key]), `${key} differs from the original HTML`).toBe(baseline[`${key}Sha256`]);
@@ -75,7 +77,7 @@ test('uses compiled Tailwind with four-pixel layout, borders, and artwork offset
     });
     for (const value of gridValues) expect(Number.parseFloat(value) % 4, value).toBe(0);
     await expect(page.locator('.content').first()).toHaveCSS('border-top-width', '0px');
-    await expect(page.locator('.content').first()).toHaveCSS('padding-top', page.viewportSize()!.width <= 660 ? '8px' : '16px');
+    await expect(page.locator('.content').first()).toHaveCSS('padding-top', '0px');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.goto('/12.html');
     const artworkValues = await page.locator('.back-button').evaluate((element) => {

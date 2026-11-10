@@ -4,6 +4,7 @@ description: Handmade public presentation, 4px site layout, and vendor-styled Bl
 colors:
   public-black: "rgb(0, 0, 0)"
   public-white: "rgb(255, 255, 255)"
+  public-ink: "#181818"
   admin-ink: "#161616"
   admin-canvas: "#f4f4f4"
   admin-paper: "#fff"
@@ -23,10 +24,10 @@ typography:
     fontSize: "15px"
   public-header:
     fontFamily: "inherit"
-    fontSize: "7vw"
+    fontSize: "30px"
   public-header-mobile:
     fontFamily: "inherit"
-    fontSize: "7vw"
+    fontSize: "30px"
   public-heading-and-link:
     fontFamily: "inherit"
     fontSize: "32px"
@@ -54,13 +55,13 @@ typography:
 rounded:
   admin-control: "0"
 spacing:
-  public-panel-padding: "1rem"
+  public-panel-padding: "0"
   public-paragraph-margin: "2rem"
-  public-panel-padding-mobile: ".5rem"
+  public-panel-padding-mobile: "0 .25rem"
 components:
   public-writing-panel:
-    backgroundColor: "{colors.public-black}"
-    textColor: "{colors.public-white}"
+    backgroundColor: "{colors.public-white}"
+    textColor: "{colors.public-ink}"
     padding: "{spacing.public-panel-padding}"
     width: "660px"
   admin-button:
@@ -87,6 +88,8 @@ components:
 This records the implementation, not a replacement identity. The public site
 retains its handmade black-and-white presentation, glitter, Tinos writing,
 collage imagery, original language, and playful interactions.
+The owner's latest material choice replaces black post bodies with supplied white
+recycled-paper texture and black multiply-blended ink; it does not change artwork panels.
 
 The publishing editor is a separate working surface. Its light canvas and
 familiar BlockNote controls do not redefine the public site. Product constraints
@@ -94,7 +97,20 @@ remain in `PRODUCT.md`; editor strategy is in `.impeccable/surfaces/admin.md`.
 
 ## Colors
 
-Public writing uses white text on borderless black panels over repeating glitter.
+Public writing uses near-black `#181818` text on borderless paper-textured white panels over
+repeating glitter. `src/assets/textures/white-recycle-paper-texture.jpg` is the
+owner-supplied 3000px source, preserved byte-for-byte; native Astro produces a
+1320px WebP displayed at a 660px texture period. Each post isolates its ink blend.
+Text-only direct children use multiply; media-containing blocks/images/embeds do
+not. Prose links and focus outlines are black; text selection is white on black.
+The owner's final CRT direction places a transparent, viewport-fixed spatial mask
+above all homepage content, including the image viewer. Its scanlines/RGB phosphors
+and slight pattern curvature stay screen-locked while assets scroll beneath them.
+It does not capture, blur, or warp DOM content. Current strength was accepted after
+the overlay change. No bloom, added noise, or extra flicker is introduced. The
+original glitter retains its animation and 400px tiling; artwork routes and admin
+have no CRT. Mallory's supplied photos, GIF, and silent clip introduce their own
+source colours behind posts; the Pinterest placeholders are retired.
 Artwork panels and image frames retain their borders. Existing artwork supplies
 its own colors. Do not recolor media.
 
@@ -106,10 +122,12 @@ not a new public brand accent. Success/error messages use local status colors.
 Public writing uses Tinos regular, with existing bold/italic variants, reducing
 to 15px at 480px and below. Intentional paragraph/break spacing is doubled;
 automatic line wrapping keeps its normal leading. The shared site heading is
-one unbroken line fitted to the available viewport width using actual rendered
-font metrics (7vw CSS fallback). Its face remains inherited rather than being
-reassigned to Tinos. Post titles keep normal wrapping. Public text selection is
-white background/black text, inverting the usual panel colors.
+one unbroken line using the owner's `text-3xl sm:text-6xl lg:text-7xl xl:text-8xl`
+scale. Post `h1` elements use the local `text-4xl` edit. The owner explicitly chose to push the local removal
+of automatic title fitting as-is; narrow/real-font overflow and the now-mismatched
+fit regression test remain known issues. Its face remains inherited rather than
+being reassigned to Tinos. Post titles keep normal wrapping. Paper writing selection is
+black background/white text; the surrounding dark presentation keeps white/black selection.
 
 Admin uses the system stack. Its site link and title input use Georgia/serif.
 Typography is not forced onto the 4px layout scale. BlockNote retains its supplied
@@ -119,22 +137,41 @@ preview loads public CSS and Tinos; it does not reproduce the whole homepage.
 ## Layout
 
 Preserve public page compositions and local overrides. Centered writing panels
-are 660px border-box, switching to 70vw rounded down to 4px at 660px and below,
-with top separation `min(15vw, 7vh)` rounded to the nearest 4px.
-Post panels have no borders; mobile internal padding is 8px (half desktop) while
-glitter gutters and paragraph margins remain. The introductory panel retains its different
-box-sizing. Shared images normally use 90% width; collage rules remain local.
+are 660px border-box, switching to 70vw rounded down to 4px at 660px and below.
+Each entry has its own paper panel, rather than grouping several entries on one
+sheet. Panels retain zero outer margins; the transparent parent uses flex centering,
+the latest local `gap-32` between posts (128px) and `pt-16` before the first (64px). These spaces reveal
+sparkles; the paper variable/background is local to each panel, never the body/feed.
+The owner explicitly kept the later local `p-0` edit: desktop post padding is zero,
+and the existing mobile `px-1` override retains 4px horizontal padding. Parent
+parent spacing remains separate from post margins; paragraph/heading margins are unchanged. The introductory
+artwork panel retains its different box-sizing/centering, with the owner's local
+padding removal preserved too.
+Shared images normally use 90% width; collage rules remain local.
 
 Admin uses a `minmax(15rem, 19rem)` entry column and flexible writing area. At
-760px and below, entries precede the editor. Actions wrap, controls have a 44px
-minimum height, and secondary insertion tools use a native disclosure. On phones,
-the entry inventory collapses after selection and can be reopened explicitly.
+760px and below, entries precede the editor without stretching the collapsed picker
+into empty space. A compact two-column header keeps sign-out beside the site link.
+Save and Publish/Update share a two-column action row; Unpublish is directly visible
+below them, not inside a dropdown. Controls retain at least 44px touch targets, and
+insertion tools use a native disclosure. The inventory collapses after selection
+and can be reopened explicitly. No vendor editor geometry is overridden.
 
 ## Elevation & Depth
 
 Shared public/admin styles use borders instead of shadows. Public depth comes
 from original layered imagery, blend modes, glitter, and the footer fade.
 BlockNote's supplied interface styling remains separately scoped.
+
+Homepage stacking is glitter, document-sized floating-image layer, native writing/
+cat/controls, then the viewport CRT overlay. The floating photographs use small,
+uncropped, borderless rectangles; they do not become post/gallery content. They
+bounce outside post rectangles and along full-document edges, never viewport
+edges on scroll. Native Astro handles their responsive delivery. A top-layer
+popover (or modal-child fallback) keeps the CRT above dialogs without input capture.
+Glitter parallax moves the sparkle texture at two-thirds scroll speed, while posts
+and floats keep normal scrolling and the CRT stays screen-locked. Apply only a
+background-position offset, not a transform on content; reduced motion opts out.
 
 ## Shapes
 
@@ -156,15 +193,17 @@ The operational editor keeps a plain writing surface, neutral controls, visible
 focus outlines, entry selection, and explicit save/publication status. Save draft
 is private and secondary. Publish/Update is the primary action and saves latest
 edits before publishing directly. Write/Preview switches the content view;
-previewing never saves and is not a prerequisite for publication. Unpublish lives
-under More. No automatic background saving or BlockNote CSS overrides are added.
+previewing never saves and is not a prerequisite for publication. Unpublish is a
+directly visible secondary button; confirmation and the save-before-unpublish
+safeguard remain. No automatic background saving or BlockNote CSS overrides are added.
 
 Post images open a native fullscreen dialog with only the enlarged image and a
 single X close button. Black/white and square 4px geometry match the site; the
 close control inverts on hover. Escape/X restores focus and scroll. Mobile viewer
 inset is also half desktop (8px/16px). GIFs remain animated; no arrows, counter, or
 caption bar are added. Cat and artwork navigation do not open the viewer. The cat
-is a labeled native toggle with a pointer cursor in both states.
+is a labeled native toggle with a pointer cursor in both states, explicitly anchored
+at the left edge independently of centered post alignment.
 
 ## Do's and Don'ts
 

@@ -43,15 +43,12 @@
     #entry-title { font-family: Georgia, serif; font-size: clamp(1.2rem, 2vw, 1.8rem); }
     .publishing-actions { @apply mt-4 mb-4 flex flex-wrap items-center gap-2; }
     .publishing-actions > span { @apply mr-auto text-admin-muted; font-size: .85rem; }
+    .publishing-buttons { @apply flex flex-wrap items-center gap-2; }
+    .unpublish-button { @apply border-transparent bg-transparent underline underline-offset-4; }
     .publishing-help { @apply mb-6 text-admin-muted; font-size: .85rem; }
     .editor-views { @apply mb-4 flex flex-wrap items-center gap-2; }
     .editor-views .admin-button { @apply border-0 bg-transparent; }
     .editor-views .admin-button[aria-pressed="true"] { @apply bg-admin-ink text-white; }
-    .publication-more { @apply relative; }
-    .publication-more > summary { @apply min-h-11 cursor-pointer px-3 py-3; }
-    .publication-more > summary:focus-visible { @apply outline-4 outline-offset-4 outline-admin-focus; }
-    .publication-more[open] { @apply border-4 border-solid border-admin-border bg-white p-3; }
-    .publication-more p { @apply my-2; }
     .original-notice, .editor-empty { @apply max-w-[65ch] py-8; }
     .editor-tools { @apply mb-8 border-0 border-b-4 border-solid border-[#ccc]; }
     .editor-tools > summary { @apply min-h-11 cursor-pointer py-3; }
@@ -68,9 +65,11 @@
 }
 
 @media (max-width: 760px) {
-    .admin-header { @apply flex-wrap gap-3 p-4; }
-    .admin-header > a { font-size: 1.15rem; }
-    .workspace { @apply grid-cols-1; }
+    .admin-header { @apply grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 p-4; }
+    .admin-header > a { @apply min-w-0; font-size: 1.15rem; overflow-wrap: anywhere; }
+    .admin-header h1 { @apply col-start-1 row-start-2; }
+    .admin-header > button { @apply col-start-2 row-start-1 row-span-2 px-3 py-2; }
+    .workspace { @apply grid-cols-1 grid-rows-[auto_1fr]; min-height: calc(100dvh - 88px); }
     .entry-list { @apply border-r-0 border-b-4 p-4; }
     .entry-list-header { @apply flex items-center justify-between gap-3; }
     .entry-list-header h2 { @apply mb-0; }
@@ -79,7 +78,14 @@
     #entry-inventory { @apply mt-4; }
     .entry-list ul { @apply max-h-52 overflow-auto; scrollbar-color: #777 #eee; }
     .writing-area { @apply px-4 py-6; }
-    .publishing-actions > span { @apply mb-2 basis-full; }
+    .publishing-actions { @apply flex-col items-stretch gap-3; }
+    .publishing-actions > span { @apply m-0; line-height: 1.5; overflow-wrap: anywhere; }
+    .publishing-buttons { @apply grid grid-cols-2 items-stretch; }
+    .publishing-buttons .admin-button { @apply min-w-0 px-2; }
+    .publishing-buttons .unpublish-button { @apply col-span-2 justify-self-start; }
+    .admin-message { @apply px-4; }
+    .original-notice, .editor-empty { @apply py-4; }
+    .editor-tools { @apply mb-4; }
     .embed-form > div { @apply flex-col; }
     .login-form { @apply mt-8 p-6; }
 }

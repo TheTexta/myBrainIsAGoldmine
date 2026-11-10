@@ -1,0 +1,8 @@
+{
+  "source": "public/glitter.gif",
+  "sha256": "dfd9a258650cbe3671d4c989767c5b7264920121ac1c1d64bbbf975e395fca89",
+  "width": 400,
+  "height": 400,
+  "processing": "First composited GIF frame, flattened on the existing black backdrop; lossless reduced-motion fallback. The live background retains the original GIF.",
+  "regenerate": "node scripts/generate-crt-glitter.mjs"
+}

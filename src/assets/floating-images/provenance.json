@@ -1,0 +1,178 @@
+{
+  "source": "Owner-supplied mallory site photos folder",
+  "processing": "Web copies only: stills auto-oriented, metadata stripped, maximum 1600px edge; native Astro supplies responsive variants. GIF frames/timing retained in a small animated copy. MOV delivered as a muted H.264 MP4 with a still poster. Downloads originals are unchanged.",
+  "regenerate": "Run this script against the supplied folder into fresh output paths; existing assets are not overwritten.",
+  "items": [
+    {
+      "id": "ab8f2798-749d-4c54-a3ba-a6488179292d",
+      "kind": "image",
+      "source": "AB8F2798-749D-4C54-A3BA-A6488179292D.jpg",
+      "sourceSha256": "70a21b4bf1412767530eba0e36438f667d7fff8fd4ef726acdf72e509b37a22e",
+      "file": "ab8f2798-749d-4c54-a3ba-a6488179292d.jpg",
+      "sha256": "38cb71142d20e6976e63e0a1c2b5a189abcfc6963b24c3fbcbcb7bcd34de799b",
+      "width": 1206,
+      "height": 804
+    },
+    {
+      "id": "d82146f0-77ce-4afa-82f8-bd1eba788ad4",
+      "kind": "image",
+      "source": "D82146F0-77CE-4AFA-82F8-BD1EBA788AD4.jpg",
+      "sourceSha256": "7b04deef8ca614c8e1a664b6808dae75dfd46cc51373d6f74f5c8ca778a9bb5a",
+      "file": "d82146f0-77ce-4afa-82f8-bd1eba788ad4.jpg",
+      "sha256": "2076bb35cce27cef99db7f90574b0c7fba6e5be334bf4d27eed056d4f4014c78",
+      "width": 1170,
+      "height": 1560
+    },
+    {
+      "id": "fullsizerender-1",
+      "kind": "image",
+      "source": "FullSizeRender (1).jpeg",
+      "sourceSha256": "16992d29c9aab33d8ce9bd1b9cbd6fd44842e20fbcce5f1395d34d43c5fbcb78",
+      "file": "fullsizerender-1.jpg",
+      "sha256": "7e8ddb98788cc08b3e82a8e2ee79ab54c8342636bcf6c4fbd1b53b832467734d",
+      "width": 504,
+      "height": 1600
+    },
+    {
+      "id": "fullsizerender",
+      "kind": "image",
+      "source": "FullSizeRender.jpeg",
+      "sourceSha256": "76029a3bfd072e7832889dbd578f9769c74c5bdc37ad7b820676ed6e180a175a",
+      "file": "fullsizerender.jpg",
+      "sha256": "d9032a97b5e819ed24967ee2a59980b42b5b03ee657f2723f4e41cc6811286b1",
+      "width": 1179,
+      "height": 869
+    },
+    {
+      "id": "image",
+      "kind": "image",
+      "source": "Image.jpg",
+      "sourceSha256": "c81c8ed2bc79622765b1dffc6f31bc93ae1495a55a817ec0590d547a1b7af60f",
+      "file": "image.jpg",
+      "sha256": "0cb44a4c9eeee8ac752c9efeeb3271e7edc01d285f27bd5a7733ac3af3a0d5a5",
+      "width": 1414,
+      "height": 944
+    },
+    {
+      "id": "img-0098",
+      "kind": "image",
+      "source": "IMG_0098.jpeg",
+      "sourceSha256": "b60f33e426084325282a470399e4fdc0029535e0eb0669b2b7d9e7d97beec6b3",
+      "file": "img-0098.jpg",
+      "sha256": "63c260fbadc66a6ebc477defdb0c6141e63a123bf6a0339e10e57a9d32beefcf",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "id": "img-0199",
+      "kind": "gif",
+      "source": "IMG_0199.GIF",
+      "sourceSha256": "3a80d6070fbd47d338fe33a313c3b3b05aec71dbe48356a0d66f747f9f5ad0f5",
+      "file": "img-0199-still.png",
+      "sha256": "2b0f3f8d493c5199273eb4acd67a9dc1dc9b10761e90f14fd7cb99e89d360ffb",
+      "width": 1200,
+      "height": 1600,
+      "animatedFile": "img-0199.gif",
+      "animatedSha256": "59596766bd34a80ad298f946d100b4c550a36abc6e528c8cd9167aa8bd0eac47",
+      "frames": 2,
+      "delays": [
+        330,
+        330
+      ],
+      "loop": 0
+    },
+    {
+      "id": "img-1303",
+      "kind": "image",
+      "source": "IMG_1303.JPG",
+      "sourceSha256": "e5ca395e8ed6d7fd6635335423d47fb14bcc72c2c07440492d7913d7179fe863",
+      "file": "img-1303.jpg",
+      "sha256": "a2e58fd5232fc86b52e6b05b91b7788687604fcd02897ca538a7bfecc6d385b1",
+      "width": 1200,
+      "height": 908
+    },
+    {
+      "id": "img-1421",
+      "kind": "image",
+      "source": "IMG_1421.jpeg",
+      "sourceSha256": "d0f568c9d19a8fc4f2f6034ab1b0f164e45c15a509b1bb29e7c678145582ea88",
+      "file": "img-1421.jpg",
+      "sha256": "8998d9be917084cc9ced5414989c639dcc59d138ffeab33cf7f136501d28f7da",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "id": "img-1438",
+      "kind": "image",
+      "source": "IMG_1438.jpeg",
+      "sourceSha256": "34f9d2d94f79bc2121baa9d893758d712c8b99ce0acfea1a0c0e6c855d1de523",
+      "file": "img-1438.jpg",
+      "sha256": "346207142e8bb004d5f85264f41f51955c67d98155681cbb41d5fa33cc789ce7",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "id": "img-1512",
+      "kind": "image",
+      "source": "IMG_1512.jpeg",
+      "sourceSha256": "867726bec4312d2d03cd42603beaef53c515dcf339a26671a3c8cecb22eb7120",
+      "file": "img-1512.jpg",
+      "sha256": "d1ed8be676b70769340a2e34b7dc616fcd4e248f46a49271e47cf489e561ecb8",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "id": "img-1541",
+      "kind": "image",
+      "source": "IMG_1541.jpeg",
+      "sourceSha256": "be558d4181982abc19662683744bd39e8f5426f3f8159cdb7ac7d7e53bae6127",
+      "file": "img-1541.jpg",
+      "sha256": "495f8a802daf7ae742034119a0f420a7e17648f67164fa3f92fcdcffc716c22f",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "id": "img-1620",
+      "kind": "video",
+      "source": "IMG_1620.MOV",
+      "sourceSha256": "be66a6a017d4dee6b5d102ce60a8e49d2c3f9569261db3c4f8ac021a77d31b7e",
+      "file": "img-1620-poster.jpg",
+      "sha256": "d5ec962c8d3c1778db1c8ecdd9bcd58e13f25b706ff35ec90487cf40bddf9277",
+      "width": 720,
+      "height": 1280,
+      "videoFile": "img-1620.mp4",
+      "videoSha256": "61a709107a1925efced435319d7222cde56aea1521776b904172e9e805f82abf",
+      "audio": false
+    },
+    {
+      "id": "img-1626",
+      "kind": "image",
+      "source": "IMG_1626.jpeg",
+      "sourceSha256": "32ff2125df227693fbc24bb33e5e65ee13e0c1a45af076adef2c6bcb1cfb332f",
+      "file": "img-1626.jpg",
+      "sha256": "c736f2977a4d4e2af146f6b773fa5fd8b41564636401bdf15c04c7ba9af15c5c",
+      "width": 1202,
+      "height": 1600
+    },
+    {
+      "id": "img-1657",
+      "kind": "image",
+      "source": "IMG_1657.jpeg",
+      "sourceSha256": "2b447334371d55ced8455849a896e3521a20fe092699353bee2277220b7849ff",
+      "file": "img-1657.jpg",
+      "sha256": "df228062563e7271c75c1cff4e714909d3683dd7807d162ff7138b1dc33cece3",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "id": "img-1786",
+      "kind": "image",
+      "source": "IMG_1786.jpeg",
+      "sourceSha256": "b2c2fcdb6dcabaac9af00cc86a04ee5b2059da76665e36ff16ed748766600689",
+      "file": "img-1786.jpg",
+      "sha256": "bd15d20ca79ce7bd6df9d28879d689f58be728f59605bcb32f288898064a1b8f",
+      "width": 1200,
+      "height": 1600
+    }
+  ]
+}

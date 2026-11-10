@@ -53,6 +53,8 @@ try {
             let snapshotChangedPixels = 0;
             for (const [label, port] of [['original', 4326], ['astro', 4325]]) {
                 const page = await browser.newPage({ viewport });
+                // Keep the overlay active while making background motion reproducible.
+                if (label === 'astro' && route === '/index.html') await page.emulateMedia({ reducedMotion: 'reduce' });
                 if (route === '/1.html') {
                     await page.clock.install({ time: new Date('2026-10-30T12:00:00Z') });
                     await page.clock.pauseAt(new Date('2026-10-30T12:00:01Z'));
@@ -78,6 +80,7 @@ try {
                 });
                 const response = await page.goto(`http://127.0.0.1:${port}${route}`);
                 if (response.status() !== 200) throw new Error(`Cannot compare ${route}: HTTP ${response.status()}`);
+                if (label === 'astro' && route === '/index.html') await page.waitForSelector('[data-crt="lottes"]');
                 await page.evaluate(async () => {
                     await document.fonts.ready;
                     // Exercise every below-fold image in full-page snapshots,
@@ -86,6 +89,7 @@ try {
                     await Promise.all([...document.images].map((image) => image.decode().catch(() => {})));
                     const backgrounds = new Set([...document.querySelectorAll('*')].flatMap((element) =>
                         [...getComputedStyle(element).backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g)].map((match) => match[1])));
+                    document.querySelectorAll('video[poster]').forEach((video) => { video.pause(); backgrounds.add(video.poster); });
                     await Promise.all([...backgrounds].map(async (url) => { const image = new Image(); image.src = url; await image.decode(); }));
                     document.querySelectorAll('iframe').forEach((frame) => { frame.removeAttribute('src'); frame.srcdoc = ''; });
                 });

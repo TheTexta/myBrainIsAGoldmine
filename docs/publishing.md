@@ -6,11 +6,13 @@ The owner approved this site's production activation on 2026-10-30 and selected
 a new Vercel project with one existing owner account as the initial editor.
 
 - Created Vercel project `my-brain-is-a-goldmine` under `thetextas-projects`.
-  Its canonical domain is `my-brain-is-a-goldmine.vercel.app`. **All URLs currently
-  require Vercel authentication**, including the canonical alias, while acceptance
-  is pending. Node 24 is selected. After acceptance, restore
-  `prod_deployment_urls_and_all_previews` protection so only the canonical
-  production alias becomes public.
+  Its canonical domain is `my-brain-is-a-goldmine.vercel.app`. **The canonical
+  production domain is public**, explicitly approved by the owner on 2026-11-09.
+  Vercel Authentication remains enabled with
+  `prod_deployment_urls_and_all_previews`: previews and deployment-specific URLs
+  remain protected. The persisted setting and anonymous HTTP behavior were
+  verified. Node 24 is selected. Application sign-in and site membership remain
+  required for editorial access.
 - Verified the shared Supabase API target, absence of conflicting `mybrain_*`
   objects/private schema, and a unique confirmed intended owner account.
 - Verified the backend host over Tailscale/SSH and production PostgreSQL 15.8.
@@ -44,8 +46,8 @@ a new Vercel project with one existing owner account as the initial editor.
   Supabase's broader default ACLs. Read-only assertions established anonymous
   draft denial, nonmember private-content/publishing denial, and intended editor
   reads. These database-role checks do not replace a real Auth/browser session.
-- Committed/pushed the conversion on `astro-blocknote-activation`; `main` remains
-  at the original revision. Vercel classified its first Git-triggered deployment
+- Initially committed/pushed the conversion on `astro-blocknote-activation` while
+  `main` was still at the original revision. Vercel classified its first Git-triggered deployment
   as Production, unexpectedly. Protection was tightened to **all** URLs and
   independently verified to show Vercel Login before continuing. A separate
   explicit preview (`target: null`) then built successfully from `37246ee`.
@@ -58,20 +60,33 @@ a new Vercel project with one existing owner account as the initial editor.
   22/24. The next preview from `82029af` explicitly reported the build-version
   change from 26 to 24 and completed successfully, without that adapter warning.
 
-Current acceptance target: revision `82029af1e2e194479197ca157212f66fecf7847c`,
+Initial protected acceptance target: revision `82029af1e2e194479197ca157212f66fecf7847c`,
 deployment `dpl_5wVeZU8RGYajkdVbtMYwMfauepCZ`, at
 `https://my-brain-is-a-goldmine-md8t3blpv-thetextas-projects.vercel.app/admin`.
 Only that exact preview and the canonical origin are currently in R2 CORS; the
 earlier acceptance preview origin was removed. A one-hour Vercel share capability
 was used privately to open the editor in the local acceptance browser; no bypass
-token is stored in this repository. The owner must sign in there with their normal
-Supabase account before authenticated acceptance can proceed. Do not substitute
+token is stored in this repository. For current production acceptance, the owner
+must sign in at `https://my-brain-is-a-goldmine.vercel.app/admin` with their normal
+Supabase account. Do not substitute
 an administrative impersonation or service-role session for that check.
+
+On 2026-11-09, the owner requested merging and pushing `astro-blocknote-activation`
+to `main`; it fast-forwarded to `406589c`. The latest observed production deployment
+is `dpl_3AyPtVopS6K6RJA9s6RL4MuXNxpF` (`READY`), at
+`https://my-brain-is-a-goldmine-jkjoloxn6-thetextas-projects.vercel.app`.
+The owner then explicitly approved making production public while retaining
+preview/deployment protection. Anonymous checks without cookies or bypass headers
+returned actual site content with HTTP 200 on the canonical homepage, HTTP 401
+(`Sign in to continue.`) on `/api/admin/posts`, and Vercel login redirects on both
+the production deployment-specific URL and the initial acceptance preview URL.
+This protection-setting change required no new deployment or promotion.
 
 **Remaining gate:** real sign-in, S3 upload/sealed-byte verification, draft preview,
 publish/edit/unpublish and session/concurrency acceptance, plus real embed playback.
-No shared Worker changes, original retirement, or public-launch approval override
-has occurred. Keep all-URL protection until these checks are resolved.
+Opening production does not establish that these authenticated checks passed.
+No shared Worker changes or original retirement occurred; Supabase sign-in,
+site-local editorial authorization, RLS, and private storage remain unchanged.
 
 ## Configuration
 

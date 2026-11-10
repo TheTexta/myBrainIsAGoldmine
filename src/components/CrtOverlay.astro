@@ -1,0 +1,7 @@
+<canvas class="crt-overlay" data-crt-overlay data-crt="loading" aria-hidden="true" inert hidden></canvas>
+
+<script>
+    import { mountCrtOverlay } from '../lib/crt-overlay-client';
+    const canvas = document.querySelector<HTMLCanvasElement>('[data-crt-overlay]');
+    if (canvas) mountCrtOverlay(canvas);
+</script>

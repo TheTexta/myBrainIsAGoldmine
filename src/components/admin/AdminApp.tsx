@@ -126,7 +126,7 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
         const version = editVersion.current;
         const result = await api('preview', { document: structuredClone(document.current), title: post.title });
         if (version !== editVersion.current) { setNotice('The draft changed while the preview loaded. Preview again for the latest version.'); return; }
-        setPreview(previewPage(result.html, post.title)); setView('preview');
+        setPreview(previewPage(result.html, post.title, result.paperUrl)); setView('preview');
     }
 
     async function uploadFile(file: File): Promise<string> {
@@ -142,8 +142,9 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
         finally { setUploads((count) => count - 1); }
     }
 
-    function previewPage(html: string, title: string) {
-        return `<!doctype html><html><head><base href="${escape(window.location.origin)}/"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="${escape(publicStyles)}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap"><title>${escape(title)}</title></head><body><div class="content preview-content tinos-regular"><h1 class="title tinos-regular">${escape(title)}</h1>${html}</div></body></html>`;
+    function previewPage(html: string, title: string, paperUrl: string) {
+        const paperStyle = escape(`--post-paper:url("${paperUrl}")`);
+        return `<!doctype html><html><head><base href="${escape(window.location.origin)}/"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="${escape(publicStyles)}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap"><title>${escape(title)}</title></head><body><div class="content preview-content tinos-regular" style="${paperStyle}"><h1 class="title tinos-regular">${escape(title)}</h1>${html}</div></body></html>`;
     }
 
     const live = post?.state === 'published' || post?.state === 'legacy';
@@ -192,16 +193,19 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
                 <label className="admin-label" htmlFor="entry-title">Title</label><input className="admin-input" id="entry-title" value={post.title} disabled={busy} maxLength={200} onChange={(event) => { editVersion.current++; setPost({ ...post, title: event.target.value }); setDirty(true); setPreview(null); setView('write'); }} />
                 <div className="publishing-actions">
                     <span role="status">{status}</span>
+                    <div className="publishing-buttons">
                     <button className="admin-button" disabled={busy || uploads > 0 || !canWrite || (!dirty && post.revision > 0)} onClick={() => void run(async () => { await save(); }, 'Saving…')}>Save draft</button>
                     <button className="admin-button primary" disabled={busy || uploads > 0 || !canWrite} onClick={() => void run(publish, 'Publishing…')}>{live ? 'Update live post' : 'Publish'}</button>
-                    {live && <details className="publication-more"><summary>More</summary><button className="admin-button" disabled={busy || uploads > 0 || dirty} onClick={() => {
+                    {live && <button className="admin-button unpublish-button" disabled={busy || uploads > 0 || dirty} onClick={() => {
                         if (window.confirm('Remove this entry from the live site? Your saved draft and images will be retained.')) void run(async () => {
                             const result = await api('publish', { id: post.id, revision: post.revision, action: 'hide' });
                             setPost({ ...post, ...result, hasUnpublishedChanges: false }); setPosts((current) => current.map((item) => item.id === post.id ? { ...item, ...result, hasUnpublishedChanges: false } : item)); setPreview(null); setView('write');
                             setNotice('Unpublished. Your saved draft is retained.');
                         }, 'Unpublishing…');
-                    }}>Unpublish</button>{dirty && <p className="admin-copy">Save your draft before unpublishing.</p>}</details>}
+                    }}>Unpublish</button>}
+                    </div>
                 </div>
+                {live && dirty && <p className="publishing-help admin-copy">Save your draft before unpublishing.</p>}
                 {(uploads > 0 || !canWrite) && <p className="publishing-help admin-copy">{uploads ? 'Finish uploading before saving or publishing.' : !post.title.trim() ? 'Add a title to save or publish.' : 'Import the original to start editing.'}</p>}
                 <nav className="editor-views" aria-label="Editor view">
                     <button className="admin-button" aria-pressed={view === 'write'} disabled={busy} onClick={() => setView('write')}>Write</button>

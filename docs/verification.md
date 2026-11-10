@@ -252,3 +252,220 @@ public/artwork/viewer/error/admin desktop/mobile captures, with no material
 blockers. This is not production-launch authorization. The optional pre-existing
 `.impeccable/design.json` metadata snapshot trails the updated DESIGN.md and was
 left untouched rather than bundling an unrelated drift-repair operation.
+
+## Public production access — 2026-11-09
+
+After the owner-requested merge/push to `main` at `406589c`, Vercel reported
+production deployment `dpl_3AyPtVopS6K6RJA9s6RL4MuXNxpF` as `READY`. The owner
+explicitly approved making the canonical production domain public while keeping
+previews and deployment-specific URLs protected.
+
+- Changed only Vercel Authentication's deployment type from `all` to
+  `prod_deployment_urls_and_all_previews`. A fresh project read confirmed that
+  exact mode persisted with Authentication still enabled. The canonical project
+  domain is verified and has no branch override or redirect.
+- Independent anonymous HTTP checks used no cookies, authorization/bypass headers,
+  or automatic redirect following. `https://my-brain-is-a-goldmine.vercel.app/`
+  returned HTTP 200 with the actual site title/content, not Vercel login.
+- The current production deployment-specific URL and the initial protected
+  acceptance preview (`my-brain-is-a-goldmine-md8t3blpv-thetextas-projects.vercel.app`)
+  both returned HTTP 302 to Vercel's `/sso-api` login flow.
+- Anonymous `/api/admin/posts` returned HTTP 401 JSON:
+  `{"error":"Sign in to continue."}`. Application authentication and editorial
+  authorization were not changed.
+
+No new deployment/promotion, schema/storage/Worker mutation, or authenticated
+content write was performed for this access-setting change. Live authenticated
+sign-in/upload/sealing/preview/publish/unpublish/session/concurrency/embed acceptance
+remains pending; these public-access checks do not replace it.
+
+## Paper posts, viewport CRT, floating images, and mobile administration — 2026-11-09
+
+Local implementation only, following the owner's successive refinements:
+
+- Post wrappers have zero outer margin and use parent flex centering. Only
+  horizontal padding is halved to Tailwind `px-2` / `px-1` (8px/4px); vertical
+  padding remains 16px/8px. Paragraph/heading margins remain unchanged. Explicit
+  `left: 0` restores the cat after flex centering affected its static position.
+- The supplied recycled-paper JPEG was moved, with owner permission, to
+  `src/assets/textures/white-recycle-paper-texture.jpg`. Its bytes and SHA-256
+  `d36ca3250c1417a7449c6cbe6a1af4cf58218e6826513a9719d06d1a548b216b` are unchanged.
+  Native Astro supplies a 1320px WebP to both public posts and read-only previews.
+  Black text-only blocks use multiply; photographs/embeds do not. Selection and
+  image-link focus switch to a visible black/white treatment on paper.
+- The final CRT request supersedes the initial background-only version. A
+  transparent, viewport-fixed scanline/phosphor mask sits above all homepage
+  content, including the native viewer, without intercepting mouse/touch/focus.
+  A manual popover supplies top-layer ordering; the fallback moves into the active
+  modal. White/black pixel-patch checks establish actual visible compositing above
+  a dialog, not just a high z-index. No scroll/time uniform moves the mask. The
+  owner accepted the current strength; no further intensity change was bundled.
+  This is a spatial adaptation of TVM/Lottes, not DOM capture or full-frame image
+  reconstruction. The original GIF remains native; the abandoned atlas was removed.
+- Five visually inspected original-image URLs were associated with Mallory's
+  linked public interesting-stuff board via public embedded image signatures.
+  No login, cookies, gated resource API, or substituted profile was used. Local
+  originals, board-level evidence, descriptions, dimensions, and hashes live under
+  `src/assets/floating-pinterest/`; Astro provides native responsive WebP variants.
+  Original creators, individual pin identities, and redistribution licences remain
+  unverified. These are local-trial samples, not cleared production assets.
+- Floating images use full-document coordinates, not the viewport. They bounce
+  off document boundaries and all post rectangles with 6px clearance; candidate
+  positions are checked against adjacent zero-margin posts too. Layout/height
+  changes refresh cached geometry without rebasing on scroll. Reduced motion/data
+  saver freeze them, hidden tabs/viewers stop animation, and insufficient space
+  hides them. The layer is out of flow and does not create height feedback.
+- Unpublish is a directly visible secondary action rather than a More disclosure.
+  Confirmation, saved-draft/upload/revision safeguards, and authorization remain.
+  Mobile header/action grouping and explicit grid rows remove the stretched empty
+  entry-picker area without changing BlockNote/Mantine styling.
+
+Completed checks on this integrated implementation:
+
+- Astro check: zero errors/warnings; existing beforeunload deprecation hint only.
+- All 25 unit tests and 72 desktop/mobile browser cases passed, including native
+  image/privacy paths, current-edits publishing, previews, conflicts, and denial.
+- Floating cases verify actual movement, five decoded native variants, responsive
+  geometry with 6px clearance, full-document positions across scrolling, hidden/
+  reduced-motion/dialog/no-room states, and late content growth/shrink without
+  document-height feedback. The native URL test accepts Astro's `f=webp` route,
+  rather than incorrectly requiring a `.webp` filename.
+- All 28 archival-source checksums and the relocated paper source are unchanged.
+  Source HTML and immutable legacy fixtures were not regenerated. The explicitly
+  added decorative images are excluded only from the archival-image identity list.
+- An independent implementation review found no material lifecycle/geometry/layer
+  defects; late-resize and clearance coverage was strengthened after its feedback.
+  Actual hardware GPU budgets and a real browser BFCache round trip are not claimed.
+- Mechanical review reports only the pre-existing 4px admin column divider; it is
+  structural, not a new accent-card border. No detector suppression was introduced.
+
+No push, deployment, production content/storage/database mutation, authorization
+migration, or TVM source change was performed. Production remains separate from
+this local trial; live authenticated publishing acceptance and Pinterest asset
+rights confirmation are still outstanding.
+
+Final follow-up checks:
+
+- Six floating-image browser cases passed again after making reduced-motion
+  placement independent of font/image load order.
+- Two additional desktop/mobile pixel checks passed: CRT-on versus CRT-off
+  changes actual glitter pixels, and a fixed white test surface retains identical
+  scanline pixels while the underlying document scrolls. This verifies background
+  coverage and viewport locking rather than relying only on style declarations.
+- The two homepage full-page goldens were intentionally refreshed for paper,
+  margins, floats, and overlay; the six artwork references remain unchanged.
+  All eight then passed a separate non-update run with zero changed pixels and
+  no failed remote assets. The overlay stays enabled; reduced motion freezes
+  decorative backgrounds for reproducible evidence.
+- Vercel output/legacy aliases/native routing passed, followed by a successful
+  ordinary Node build. The final build is not a fixture-configured test build.
+  The existing editor chunk-size warning remains; no unrelated bundling refactor
+  was added.
+
+Final independent screenshot/source finish review: **SHIP for the local trial**.
+The earlier cat-over-writing finding is resolved by explicit left anchoring and
+fresh desktop/mobile captures. No material paper, overlay, floating-image, viewer,
+artwork, or mobile-admin defect remained in the inspected evidence. This does not
+grant production or image-rights approval; the additional CRT pixel proofs above
+were completed by the parent after the review's supplied status was prepared.
+
+## Post padding and sparkle parallax follow-up — 2026-11-09
+
+The owner's subsequent requests set all post containers, including read-only
+previews, to `py-8` (32px top/bottom). Horizontal `px-2` / mobile `px-1`, zero outer
+margins, and paragraph/heading margins are unchanged. Ten focused desktop/mobile
+reading, preview/publishing, layout, floating-collision and height-refresh checks
+passed for the padding change. The first snapshot update encountered a filesystem
+`EIO` read; subsequent reads confirmed both PNG files remain valid and adequate
+disk space was available. No original/reference asset was deleted or reset.
+
+Sparkles now move at two-thirds document speed via a background-position offset
+of `scrollY / 3`; posts retain normal scrolling and CRT remains viewport-fixed.
+Only homepage/legacy alias mount the passive, RAF-coalesced listener. Reduced
+motion opts out; hidden/BFCache lifecycle cleanup avoids stale queued work.
+All 30 unit tests and six dedicated desktop/mobile parallax cases passed. Actual
+pixel checks freeze the GIF without enabling reduced motion and establish that
+600px document scroll advances the 400px repeating texture by exactly one tile;
+post position still advances 600px. Artwork/admin, preference changes, and hidden/
+resume behavior were checked separately.
+
+## Individual paper posts and supplied-media release preparation — 2026-11-10
+
+The owner confirmed that every entry should have its own paper container with
+visible sparkle-filled space between posts and above the first. Rendering now
+flattens the legacy display groups into eleven independent entry containers;
+publication/grouping metadata and original content remain unchanged. Paper URL
+variables are local to each post and to its preview container, not the page body.
+The transparent feed uses `gap-8` and `pt-8`; each post's outer margin stays zero.
+Live development inspection confirmed eleven single-heading containers, ten 32px
+gaps, a sparkle page background, and no body-level paper variable.
+
+During final checks, newer local CSS edits removed shared artwork padding, set
+post padding to `p-0`, and removed the Spotify wrapper margin. These edits were
+not made by the agent. Rather than overwriting them, the owner was asked and
+explicitly selected **Preserve current p-0**. The mobile `px-1` override remains.
+Tests/current design documentation now reflect that approval, superseding the
+earlier internal `py-8` request; parent spacing is still 32px.
+
+The owner then supplied 16 files from the local mallory site photos folder and
+explicitly chose the MOV as a playing clip. All five Pinterest placeholder JPEGs
+and their manifest/directory were removed. App web copies are now:
+
+- Fourteen auto-oriented, metadata-stripped JPEG photos under
+  `src/assets/floating-images/`, capped at a 1600px edge; native Astro supplies
+  responsive WebP variants.
+- A small animated GIF retaining both source frames, exact frame delays and loop,
+  with a static fallback. The native GIF lives under `public/floating-media/`.
+- A silent H.264 MP4 under `public/floating-media/`, plus a native-optimized poster.
+  It is muted, looping, inline, control-free, and does not preload offscreen.
+- Source/output hashes, image dimensions and processing records in
+  `src/assets/floating-images/provenance.json`. Every supplied Downloads original
+  was reread and checksum-verified unchanged during preparation.
+
+GIF/video animation is visibility-gated and pauses for reduced motion, data saver,
+hidden documents, open viewers, no-room layouts and disposal. Browser tests verified
+actual video time progression/offscreen pause and GIF source switching. A final
+read-only implementation review found no blocking lifecycle/media-ownership issue.
+The reduced-motion first-static-frame timing race found in an earlier full run was
+fixed in the renderer without weakening the freeze assertion.
+
+The owner explicitly authorized commit and push on `main`, which triggers Vercel's
+configured production deployment. No database, storage-service, shared Worker,
+authorization, original-asset retirement or manual promotion is included.
+
+Before committing, the latest local ink colour changed to `#181818` and the
+Spotify wrapper margin rule was restored. Those local choices were preserved;
+colour assertions now check the actual charcoal value in both posts and previews.
+
+Pre-push results and explicit release exception:
+
+- The latest full browser run passed 80/84 cases; four remaining assertions still
+  expected pure black rather than the newer local `#181818` ink. After preserving
+  that edit and updating those exact expectations, all four focused desktop/mobile
+  reading/publishing cases passed. All 30 unit tests passed.
+- The refreshed eight visual references passed a separate non-update comparison
+  with zero changed pixels and no failed remote assets. These pixel matches do
+  **not** establish responsive correctness: real-font captures revealed expanded
+  widths on the homepage and intro artwork page.
+- Investigation found a newer local `SiteHeader.astro` edit removing the automatic
+  title-fitting script and markers. The owner was shown the mobile-overflow/header-
+  test consequence and explicitly selected **Push current header as-is**. That edit
+  is preserved, not reverted. The fit regression remains in place and is expected
+  to fail against that header until the behavior or requirement is revised; no
+  suppression/baseline rewrite claims to resolve it. Final frontend release is
+  therefore owner-accepted with a known issue, not an unconditional visual SHIP.
+- Node and Vercel builds passed, with legacy aliases/native routing intact and the
+  ordinary Node build restored after fixture checks. Existing beforeunload/chunk
+  warnings remain. Source checks verified all 16 supplied originals and all 28
+  archival assets unchanged. The Pinterest placeholder source folder is gone.
+
+The owner-authorized push includes these known local choices. No production
+authenticated acceptance, database/storage mutation, or manual promotion is claimed.
+
+The staged snapshot additionally preserves the final local white image borders,
+`text-4xl` post headings, responsive header type classes, `gap-32` (128px) and
+`pt-16` (64px). These supersede the earlier 32px gap/top-spacing expectations.
+The existing fit and 32px-spacing regression assertions were not suppressed, so
+the full suite is not represented as green for this owner-requested as-is snapshot.
+The earlier eight-reference pixel matches predate these last spacing/type tweaks;
+they are historical evidence, not proof that the latest header overflow is fixed.

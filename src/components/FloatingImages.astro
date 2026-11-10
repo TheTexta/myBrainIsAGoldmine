@@ -1,0 +1,29 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import provenance from '../assets/floating-images/provenance.json';
+
+interface Item { id: string; kind: 'image' | 'gif' | 'video'; file: string; animatedFile?: string; videoFile?: string; }
+const assets = import.meta.glob<ImageMetadata>('../assets/floating-images/*.{jpg,png}', { eager: true, import: 'default' });
+const images = await Promise.all((provenance.items as Item[]).map(async (item) => {
+    const image = assets[`../assets/floating-images/${item.file}`];
+    return { ...item, image, poster: item.kind === 'image' ? null : await getImage({ src: image, width: 288, format: 'webp' }) };
+}));
+---
+
+<div class="floating-images" data-floating-images data-ui aria-hidden="true" inert hidden>
+    {images.map((item) => <div class="floating-image" data-floating-image data-media-id={item.id} data-media-type={item.kind} data-aspect={item.image.width / item.image.height}>
+        {item.kind === 'video' ? <video src={`/floating-media/${item.videoFile}`} poster={item.poster!.src}
+            muted loop playsinline preload="none" disablepictureinpicture tabindex="-1" />
+        : item.kind === 'gif' ? <picture>
+            <source data-animated-still media="all" srcset={item.poster!.src} type="image/webp" />
+            <Image src={`/floating-media/${item.animatedFile}`} width={288} height={Math.round(288 * item.image.height / item.image.width)} alt="" loading="eager" fetchpriority="low" />
+        </picture> : <Image src={item.image} width={144} widths={[48, 96, 144, 288]} sizes="(max-width: 660px) 48px, 144px" format="webp" alt="" loading="eager" fetchpriority="low" />}
+    </div>)}
+</div>
+
+<script>
+    import { mountFloatingImages } from '../lib/floating-images-client';
+    const layer = document.querySelector<HTMLElement>('[data-floating-images]');
+    if (layer) mountFloatingImages(layer);
+</script>
