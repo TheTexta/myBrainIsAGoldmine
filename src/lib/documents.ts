@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { imageAlternative } from './content-accessibility';
 
 export const MAX_DOCUMENT_BYTES = 1_048_576;
 export const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
@@ -88,7 +89,7 @@ function renderInline(items: Inline[] = []): string {
             const href = safeUrl(item.href);
             return href ? `<a class="prose-link" href="${escape(href)}" rel="noopener noreferrer">${content}</a>` : content;
         }
-        let value = escape(item.text).replace(/\n/g, '<br>');
+        let value = escape(item.text).replace(/\n/g, '<br><br>');
         for (const [style, tag] of [['bold', 'strong'], ['italic', 'em'], ['underline', 'u'], ['strike', 's'], ['code', 'code']] as const) {
             if (item.styles[style]) value = `<${tag}>${value}</${tag}>`;
         }
@@ -113,7 +114,7 @@ export function renderDocument(input: unknown): string {
                 const sizing = Number.isFinite(width) && width > 0 ? ` style="width:min(90%,${Math.min(Math.round(width), 2000)}px)"` : '';
                 if (url) output += block.props.showPreview === false
                     ? `<p><a class="prose-link" href="${escape(url)}">${escape(String(block.props.caption || block.props.name || 'Image'))}</a></p>`
-                    : `<div class="published-image"><img src="${escape(url)}" alt="${escape(String(block.props.caption || block.props.name || ''))}"${sizing}>${block.props.caption ? `<p>${escape(String(block.props.caption))}</p>` : ''}</div>`;
+                    : `<div class="published-image"><img src="${escape(url)}" alt="${escape(imageAlternative(url, String(block.props.caption || block.props.name || '')))}"${sizing}>${block.props.caption ? `<p>${escape(String(block.props.caption))}</p>` : ''}</div>`;
                 output += children;
             } else if (block.type === 'embed') {
                 const url = embedUrl(String(block.props.url ?? ''));

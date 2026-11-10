@@ -150,12 +150,21 @@ retain private/public snapshots before a production switch.
 - Failed saves leave the editor open; stale revisions return HTTP 409 rather than
   overwriting another session's changes. Save is manual; leaving with unsaved
   changes warns before navigation. Keep the tab open after an error.
+- The owner selected direct publishing on 2026-11-09. Publish/Update saves the
+  current draft if needed and publishes its returned revision; Preview is an
+  optional read-only view, not a publishing prerequisite. A failed save stops
+  publication. A publication response failure keeps the saved draft and reports
+  an uncertain publishing outcome rather than retrying or claiming it is live.
+- Existing `updated_at` / `published_at` fields distinguish a draft saved since
+  publication after reload. This is timestamp-based status, not a claim that
+  content differs byte-for-byte. No schema/RPC or authorization change is required.
 - BlockNote JSON is the source of truth. Size/depth/type bounds and an escaped,
   allowlisted semantic renderer prevent arbitrary editor HTML from executing.
   Spotify/VideoPress are the only supported iframe providers. No client-provided
   HTML is stored or trusted for rendering.
 - Original HTML is trusted repository-owned archival content. It is not replaced
-  by the lossy editor import until an editor saves, previews, and publishes.
+  by the lossy editor import until an editor deliberately publishes the saved
+  replacement. Publish/Update saves latest edits first; Preview remains optional.
 - Preview HTML runs in a sandboxed iframe without same-origin privileges. Draft
   image reads use short-lived signed capabilities; do not share preview URLs.
   It is a content preview using the public renderer and Tinos font, not a full
@@ -209,7 +218,8 @@ published delivery bucket/Worker require a separately reviewed operation.
 5. Configure public and server-only environment values, then build a preview.
 6. Verify original-route fidelity; use a real authorized account to save a draft,
    confirm anonymous draft/media denial, upload a real image, publish, read back
-   identical bytes, edit without publishing, unpublish, and verify revoked delivery.
+   identical bytes, edit without publishing, unpublish, and verify original-route
+   access is revoked. Previously optimized copies may remain natively cached.
 7. Verify real embed playback, logout/expired-session behavior, and concurrent
    edit conflicts. Browser fixtures do not replace these acceptance checks.
 8. Only after approval promote/deploy. Keep database/R2 backups and the compatible

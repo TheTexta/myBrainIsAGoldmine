@@ -23,10 +23,10 @@ typography:
     fontSize: "15px"
   public-header:
     fontFamily: "inherit"
-    fontSize: "60px"
+    fontSize: "7vw"
   public-header-mobile:
     fontFamily: "inherit"
-    fontSize: "48px"
+    fontSize: "7vw"
   public-heading-and-link:
     fontFamily: "inherit"
     fontSize: "32px"
@@ -55,7 +55,8 @@ rounded:
   admin-control: "0"
 spacing:
   public-panel-padding: "1rem"
-  public-paragraph-margin: "1rem"
+  public-paragraph-margin: "2rem"
+  public-panel-padding-mobile: ".5rem"
 components:
   public-writing-panel:
     backgroundColor: "{colors.public-black}"
@@ -93,8 +94,9 @@ remain in `PRODUCT.md`; editor strategy is in `.impeccable/surfaces/admin.md`.
 
 ## Colors
 
-Public writing uses white text and solid borders on black panels over repeating
-glitter. Existing artwork supplies its own colors. Do not recolor media.
+Public writing uses white text on borderless black panels over repeating glitter.
+Artwork panels and image frames retain their borders. Existing artwork supplies
+its own colors. Do not recolor media.
 
 Admin uses the separately named neutral tokens above. Blue is keyboard focus,
 not a new public brand accent. Success/error messages use local status colors.
@@ -102,8 +104,12 @@ not a new public brand accent. Success/error messages use local status colors.
 ## Typography
 
 Public writing uses Tinos regular, with existing bold/italic variants, reducing
-to 15px at 480px and below. The shared header is 60px, reducing to 48px; its
-face remains inherited rather than being reassigned to Tinos.
+to 15px at 480px and below. Intentional paragraph/break spacing is doubled;
+automatic line wrapping keeps its normal leading. The shared site heading is
+one unbroken line fitted to the available viewport width using actual rendered
+font metrics (7vw CSS fallback). Its face remains inherited rather than being
+reassigned to Tinos. Post titles keep normal wrapping. Public text selection is
+white background/black text, inverting the usual panel colors.
 
 Admin uses the system stack. Its site link and title input use Georgia/serif.
 Typography is not forced onto the 4px layout scale. BlockNote retains its supplied
@@ -115,12 +121,14 @@ preview loads public CSS and Tinos; it does not reproduce the whole homepage.
 Preserve public page compositions and local overrides. Centered writing panels
 are 660px border-box, switching to 70vw rounded down to 4px at 660px and below,
 with top separation `min(15vw, 7vh)` rounded to the nearest 4px.
-The introductory panel deliberately retains its different
+Post panels have no borders; mobile internal padding is 8px (half desktop) while
+glitter gutters and paragraph margins remain. The introductory panel retains its different
 box-sizing. Shared images normally use 90% width; collage rules remain local.
 
 Admin uses a `minmax(15rem, 19rem)` entry column and flexible writing area. At
 760px and below, entries precede the editor. Actions wrap, controls have a 44px
-minimum height, and secondary insertion tools use a native disclosure.
+minimum height, and secondary insertion tools use a native disclosure. On phones,
+the entry inventory collapses after selection and can be reopened explicitly.
 
 ## Elevation & Depth
 
@@ -130,7 +138,8 @@ BlockNote's supplied interface styling remains separately scoped.
 
 ## Shapes
 
-Public panels, links, and images retain solid borders. Admin buttons and inputs
+Post panels are borderless; artwork panels, links, and images retain solid borders.
+The viewer X is unboxed, with a square keyboard-focus outline. Admin buttons and inputs
 have square corners and 4px borders. Site-owned artwork offsets and borders use
 the same 4px scale. Do not impose it on third-party editor UI or distort image
 aspect ratios to make intrinsic dimensions land on that scale.
@@ -144,8 +153,18 @@ image swaps, and GIF dimensions are individual artwork behavior, not tokens for
 new components.
 
 The operational editor keeps a plain writing surface, neutral controls, visible
-focus outlines, disabled states, entry selection, and explicit save/publication
-status. Draft saving, content preview, and deliberate publication stay distinct.
+focus outlines, entry selection, and explicit save/publication status. Save draft
+is private and secondary. Publish/Update is the primary action and saves latest
+edits before publishing directly. Write/Preview switches the content view;
+previewing never saves and is not a prerequisite for publication. Unpublish lives
+under More. No automatic background saving or BlockNote CSS overrides are added.
+
+Post images open a native fullscreen dialog with only the enlarged image and a
+single X close button. Black/white and square 4px geometry match the site; the
+close control inverts on hover. Escape/X restores focus and scroll. Mobile viewer
+inset is also half desktop (8px/16px). GIFs remain animated; no arrows, counter, or
+caption bar are added. Cat and artwork navigation do not open the viewer. The cat
+is a labeled native toggle with a pointer cursor in both states.
 
 ## Do's and Don'ts
 

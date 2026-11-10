@@ -3,11 +3,12 @@ import { z } from 'zod';
 import { parseDocument, renderDocument, type DocumentBlock } from '../../../lib/documents';
 import { privateImageUrl } from '../../../lib/media-server';
 import { endpoint, json, readJson, requireEditor } from '../../../lib/server';
+import { accessiblePostMarkup } from '../../../lib/content-accessibility';
 
 export const prerender = false;
 export const POST: APIRoute = ({ request }) => endpoint(async () => {
     const client = await requireEditor(request);
-    const body = z.object({ document: z.unknown() }).parse(await readJson(request));
+    const body = z.object({ document: z.unknown(), title: z.string().max(200).optional() }).parse(await readJson(request));
     const document = parseDocument(body.document);
     const resolve = async (blocks: DocumentBlock[]): Promise<void> => {
         await Promise.all(blocks.map(async (block) => {
@@ -16,5 +17,5 @@ export const POST: APIRoute = ({ request }) => endpoint(async () => {
         }));
     };
     await resolve(document);
-    return json({ html: renderDocument(document) });
+    return json({ html: accessiblePostMarkup(renderDocument(document), body.title || 'Draft preview') });
 });

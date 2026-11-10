@@ -6,13 +6,29 @@ interface Props {
 const { interactive = false } = Astro.props;
 ---
 
-<header>
+<header class="site-header">
     {interactive ? (
-        <button id="swag-button" class="site-header-action">U WANNA STEAL MY SWAG</button>
-    ) : 'U WANNA STEAL MY SWAG'}
+        <button id="swag-button" class="site-header-action"><span class="header-title" data-fit-title>U WANNA STEAL MY SWAG</span></button>
+    ) : <span class="header-title" data-fit-title>U WANNA STEAL MY SWAG</span>}
 </header>
 
 <script>
+    document.querySelectorAll<HTMLElement>('.site-header').forEach((header) => {
+        const title = header.querySelector<HTMLElement>('[data-fit-title]');
+        if (!title) return;
+        let previousWidth = -1;
+        const fit = (force = false) => {
+            const available = header.clientWidth;
+            if (!available || (!force && available === previousWidth)) return;
+            previousWidth = available;
+            title.style.fontSize = '100px';
+            const measured = title.getBoundingClientRect().width;
+            if (measured) title.style.fontSize = `${Math.floor(available / measured * 10000) / 100}px`;
+        };
+        new ResizeObserver(() => fit()).observe(header);
+        void document.fonts.ready.then(() => fit(true));
+        fit();
+    });
     document.getElementById('swag-button')?.addEventListener('click', () => {
         window.location.href = '12.html';
     });

@@ -1,6 +1,6 @@
 export const imageWidths = [160, 240, 320, 480, 640, 960, 1280, 1920] as const;
-export const proseSizes = '(max-width: 660px) calc(63vw - 36px), 556px';
-export const gallerySizes = '(max-width: 660px) calc(21vw - 36px), 160px';
+export const proseSizes = '(max-width: 660px) calc(63vw - 16px), 564px';
+export const gallerySizes = '(max-width: 660px) calc(21vw - 28px), 164px';
 export const wordpressHost = 'uwannastealmgswag.art.blog';
 
 // Intrinsic sizes of the exact existing WordPress sources, verified 2026-11-09.

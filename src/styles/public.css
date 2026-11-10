@@ -6,7 +6,8 @@
         background-image: url('/glitter.gif');
         background-repeat: repeat;
     }
-    header { @apply box-border w-full border-4 border-solid bg-black text-center text-white; font-size: 60px; }
+    ::selection { @apply bg-white text-black; }
+    header { @apply box-border w-full border-4 border-solid bg-black text-center text-white; }
     footer {
         @apply flex w-full flex-col items-center justify-end pb-3;
         height: round(nearest, 10vh, var(--spacing));
@@ -30,8 +31,10 @@
 }
 
 @layer components {
-    .site-header-action { @apply cursor-pointer border-0 bg-transparent p-0 text-white; font: inherit; }
-    .site-header-action:focus-visible { @apply outline-4 outline-offset-4 outline-white; }
+    .site-header { font-size: 7vw; line-height: 1; white-space: nowrap; }
+    .header-title { @apply mx-auto block w-max; white-space: nowrap; }
+    .site-header-action { @apply m-0 block w-full cursor-pointer border-0 bg-transparent p-0 text-white; font: inherit; }
+    .site-header-action:focus-visible { @apply bg-white text-black outline-4 -outline-offset-4 outline-white; }
     .site-container { @apply flex w-full flex-col self-center justify-center box-border; }
     .feed-container { margin-bottom: round(nearest, min(15vw, 7vh), var(--spacing)); }
     .intro-container { margin-top: round(nearest, 10vh, var(--spacing)); }
@@ -39,10 +42,11 @@
     /* The introductory artwork intentionally retains its content-box composition. */
     .main { @apply box-content; }
     .content {
-        @apply box-border;
+        @apply box-border border-0;
         font-size: 18px;
         margin-top: round(nearest, min(15vw, 7vh), var(--spacing));
     }
+    .content p { @apply my-8; }
     .preview-content { @apply mt-8; }
     .padding { @apply w-full; }
     .img-stack { @apply absolute mix-blend-screen; transform: translateY(-100%); left: round(nearest, 5%, var(--spacing)); }
@@ -56,10 +60,12 @@
     .tinos-bold { @apply font-writing font-bold not-italic; }
     .tinos-regular-italic { @apply font-writing font-normal italic; }
     .tinos-bold-italic { @apply font-writing font-bold italic; }
-    .cat {
-        @apply absolute bottom-0 z-1 cursor-pointer border-0;
+    .cat-toggle {
+        @apply absolute bottom-0 z-1 cursor-pointer border-0 bg-transparent p-0;
         width: round(down, 20%, var(--spacing));
     }
+    .cat { @apply m-0 block h-auto w-full cursor-pointer border-0; }
+    .cat-toggle:focus-visible, .post-image-link:focus-visible { @apply outline-4 outline-offset-4 outline-white; }
     .cat-link {
         @apply absolute z-2 hidden border-0 bg-transparent mix-blend-hard-light;
         bottom: round(nearest, 18vw, var(--spacing));
@@ -83,6 +89,28 @@
     .artwork-12 .back-button:hover { @apply border-transparent; }
     .artwork-12 .fun-container > img { @apply w-auto border-0; height: round(nearest, 60vh, var(--spacing)); }
     .artwork-3 { background-image: var(--artwork-medium); background-size: auto 100vh; background-position: center top; }
+    .content .post-image-link { @apply m-0 block w-full cursor-zoom-in border-0 bg-transparent p-0; font: inherit; }
+    .content .post-image-link:hover { background-image: none; }
+    .image-viewer {
+        @apply fixed inset-0 m-0 box-border h-full w-full max-w-none max-h-none border-0 bg-black text-white;
+        height: 100dvh;
+        --viewer-inset: 16px;
+        padding: max(var(--viewer-inset), env(safe-area-inset-top)) max(var(--viewer-inset), env(safe-area-inset-right)) max(var(--viewer-inset), env(safe-area-inset-bottom)) max(var(--viewer-inset), env(safe-area-inset-left));
+        font-family: var(--font-writing);
+    }
+    .image-viewer[open] { @apply grid; grid-template-rows: minmax(0, 1fr); }
+    .image-viewer::backdrop { @apply bg-black; }
+    .image-viewer [hidden] { display: none; }
+    .viewer-close {
+        @apply absolute z-1 grid h-11 w-11 cursor-pointer place-items-center border-0 bg-black p-2 text-white;
+        top: max(var(--viewer-inset), env(safe-area-inset-top));
+        right: max(var(--viewer-inset), env(safe-area-inset-right));
+    }
+    .viewer-close:hover { @apply bg-white text-black; }
+    .viewer-close:focus-visible { @apply outline-4 outline-offset-4 outline-white; }
+    .viewer-stage { @apply relative m-0 flex min-h-0 items-center justify-center; }
+    .viewer-image { @apply m-0 block h-auto w-auto max-h-full max-w-full border-0 object-contain; }
+    .viewer-feedback { @apply m-0 text-center; }
 }
 
 @media (max-height: 720px) { .artwork-3 { background-image: var(--artwork-small); } }
@@ -92,8 +120,9 @@
 
 @media (max-width: 660px) {
     .main, .content { width: round(down, 70vw, var(--spacing)); }
+    .content { @apply p-2; }
+    .image-viewer { --viewer-inset: 8px; }
 }
 @media (max-width: 480px) {
-    header { font-size: 48px; }
     .content { font-size: 15px; }
 }

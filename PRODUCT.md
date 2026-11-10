@@ -31,6 +31,10 @@ R2 storage. Production activation is a separate approval gate.
 - Public still images use native Astro responsive optimization, including
   published R2 images. The owner accepts native cached copies outliving unpublish;
   private previews never enter the optimizer, and originals remain retained.
+- Publishing is explicit and direct: save current edits if needed, then publish.
+  Preview is optional and does not save. Save draft remains private and manual.
+- Public reading uses borderless post panels, inverted selection, a single-line
+  fit-to-width site heading, and a fullscreen image view with only an X close control.
 - Shared identity does not grant this site's editorial access.
 
 ## Evidence on hand

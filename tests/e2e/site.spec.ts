@@ -14,12 +14,22 @@ function originalImages(path: string) {
     const images: (string | null)[][] = [];
     const visit = (node: DefaultTreeAdapterMap['node']) => {
         if ('tagName' in node && node.tagName === 'img') {
-            images.push(['src', 'alt', 'id'].map((name) => node.attrs.find((attr) => attr.name === name)?.value ?? null));
+            images.push(['src', 'id'].map((name) => node.attrs.find((attr) => attr.name === name)?.value ?? null));
         }
         if ('childNodes' in node) node.childNodes.forEach(visit);
     };
     visit(document);
     return images;
+}
+function originalEmbeds(path: string) {
+    const document = parse(execFileSync('git', ['show', `${legacy.sourceRevision}:${path.slice(1)}`], { encoding: 'utf8' }));
+    const embeds: string[][][] = [];
+    const visit = (node: DefaultTreeAdapterMap['node']) => {
+        if ('tagName' in node && node.tagName === 'iframe') embeds.push(node.attrs.filter((attribute) => attribute.name !== 'title').map(({ name, value }) => [name, value]).sort());
+        if ('childNodes' in node) node.childNodes.forEach(visit);
+    };
+    visit(document);
+    return embeds;
 }
 test.beforeEach(async ({ page, request }) => {
     await request.post('http://127.0.0.1:54329/__reset');
@@ -33,15 +43,16 @@ for (const [path, baseline] of Object.entries(legacy.pages)) {
         expect(response?.status()).toBe(200);
         const snapshot = await page.evaluate(() => ({
             title: document.title,
-            text: [...document.querySelectorAll('header,h1,h2,p,li,button,a')].map((el) => [el.tagName, el.textContent!.replace(/\s+/g, ' ').trim()]),
-            images: [...document.images].map((el) => [el.getAttribute('data-original-src') ?? el.getAttribute('src'), el.getAttribute('alt'), el.getAttribute('id')]),
-            embeds: [...document.querySelectorAll('iframe')].map((el) => [...el.attributes].map((a) => [a.name, a.value]).sort()),
-            links: [...document.querySelectorAll('a')].map((el) => [el.getAttribute('href'), el.textContent!.replace(/\s+/g, ' ').trim()]),
+            text: [...document.querySelectorAll('header,h1,h2,p,li,button,a')].filter((el) => !el.closest('[data-ui]')).map((el) => [el.tagName, el.textContent!.replace(/\s+/g, ' ').trim()]),
+            images: [...document.images].filter((el) => !el.closest('#post-image-viewer')).map((el) => [el.getAttribute('data-original-src') ?? el.getAttribute('src'), el.getAttribute('id')]),
+            embeds: [...document.querySelectorAll('iframe')].map((el) => [...el.attributes].filter((a) => a.name !== 'title').map((a) => [a.name, a.value]).sort()),
+            links: [...document.querySelectorAll('a')].filter((el) => !el.closest('[data-ui]')).map((el) => [el.getAttribute('href'), el.textContent!.replace(/\s+/g, ' ').trim()]),
             contentSections: document.querySelectorAll('.content').length,
         }));
         expect(snapshot.title).toBe(baseline.title); expect(snapshot.contentSections).toBe(baseline.contentSections);
         expect(snapshot.images).toEqual(originalImages(path));
-        for (const key of ['text', 'embeds', 'links'] as const) expect(hash(snapshot[key]), `${key} differs from the original HTML`).toBe(baseline[`${key}Sha256`]);
+        expect(snapshot.embeds).toEqual(originalEmbeds(path)); // Titles are intentionally improved for accessibility.
+        for (const key of ['text', 'links'] as const) expect(hash(snapshot[key]), `${key} differs from the original HTML`).toBe(baseline[`${key}Sha256`]);
         expect(errors).toEqual([]);
     });
 }
@@ -63,7 +74,8 @@ test('uses compiled Tailwind with four-pixel layout, borders, and artwork offset
         return [style.width, style.paddingTop, style.marginTop, style.borderTopWidth];
     });
     for (const value of gridValues) expect(Number.parseFloat(value) % 4, value).toBe(0);
-    await expect(page.locator('.content').first()).toHaveCSS('border-top-width', '4px');
+    await expect(page.locator('.content').first()).toHaveCSS('border-top-width', '0px');
+    await expect(page.locator('.content').first()).toHaveCSS('padding-top', page.viewportSize()!.width <= 660 ? '8px' : '16px');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.goto('/12.html');
     const artworkValues = await page.locator('.back-button').evaluate((element) => {
@@ -83,9 +95,11 @@ test('keeps editor bundles off the homepage and retains cat/navigation behavior'
     await page.locator('#cat').click();
     await expect(page.locator('#cat')).toHaveAttribute('src', '/mal the cat.gif');
     await expect(page.locator('#cat')).toHaveAttribute('height', '329');
+    await expect(page.locator('#cat')).toHaveCSS('cursor', 'pointer');
+    await expect(page.getByRole('button', { name: 'Hide Pinterest link' })).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('#cat')).not.toHaveAttribute('srcset');
     await expect(page.locator('#cat-button')).toBeVisible();
-    await page.locator('#cat').click();
+    await page.getByRole('button', { name: 'Hide Pinterest link' }).press('Space');
     await expect(page.locator('#cat')).toHaveAttribute('src', '/Mal the Cat Normal.gif');
     await expect(page.locator('#cat')).toHaveAttribute('height', '229');
     await expect(page.locator('#cat-button')).toBeHidden();

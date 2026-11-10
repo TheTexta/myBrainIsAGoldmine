@@ -4,7 +4,7 @@ import { imageTypes, MAX_IMAGE_BYTES, mediaPath } from '../../lib/documents';
 import publicStyles from '../../styles/public.css?url';
 
 const DocumentEditor = lazy(() => import('./DocumentEditor'));
-interface Summary { id: string; title: string; revision: number; legacy_key: string | null; state: string; }
+interface Summary { id: string; title: string; revision: number; legacy_key: string | null; state: string; hasUnpublishedChanges?: boolean; }
 interface Post extends Summary { document: unknown; legacyHtml: string | null; }
 const escape = (value: string) => value.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
 
@@ -21,8 +21,14 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
     const [error, setError] = useState('');
     const [notice, setNotice] = useState('');
     const [importOriginal, setImportOriginal] = useState(false);
-    const [preview, setPreview] = useState<{ html: string; revision: number } | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [view, setView] = useState<'write' | 'preview'>('write');
+    const [working, setWorking] = useState('');
+    const [inventoryOpen, setInventoryOpen] = useState(true);
     const document = useRef<unknown>(null);
+    const editVersion = useRef(0);
+    const acting = useRef(false);
+    const focusSelected = useRef(false);
 
     async function api(path: string, body?: unknown) {
         const { data } = await client.auth.getSession();
@@ -65,26 +71,62 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
         return () => window.removeEventListener('beforeunload', warn);
     }, [dirty, uploads]);
 
-    async function run(action: () => Promise<void>) {
-        setBusy(true); setError(''); setNotice('');
+    useEffect(() => {
+        if (!post || !focusSelected.current) return;
+        focusSelected.current = false;
+        if (window.matchMedia('(max-width: 760px)').matches) window.document.getElementById('entry-title')?.focus();
+    }, [post?.id, inventoryOpen]);
+
+    async function run(action: () => Promise<void>, label = '') {
+        if (acting.current) return;
+        acting.current = true;
+        setBusy(true); setWorking(label); setError(''); setNotice('');
         try { await action(); } catch (failure) { setError(failure instanceof Error ? failure.message : 'The action failed. Please try again.'); }
-        finally { setBusy(false); }
+        finally { acting.current = false; setBusy(false); setWorking(''); }
     }
 
     function canLeave() { return !dirty || window.confirm('Leave this entry without saving your latest changes?'); }
     function select(next: Post) {
-        setPost(next); document.current = next.document; setDirty(false); setImportOriginal(false); setPreview(null); setNotice('');
+        focusSelected.current = true;
+        editVersion.current++;
+        setPost(next); document.current = next.document; setDirty(false); setImportOriginal(false); setPreview(null); setView('write'); setInventoryOpen(false); setNotice('');
     }
-    function changed(next: unknown) { document.current = next; setDirty(true); setPreview(null); }
+    function changed(next: unknown) { editVersion.current++; document.current = next; setDirty(true); setPreview(null); }
 
-    async function save() {
+    async function save(showNotice = true) {
         if (!post) return;
-        const saved = await api('posts', { id: post.id, revision: post.revision, title: post.title, document: document.current });
-        const next = { ...post, ...saved } as Post;
-        setPost(next); setDirty(false);
+        const version = editVersion.current;
+        const saved = await api('posts', { id: post.id, revision: post.revision, title: post.title, document: structuredClone(document.current) });
+        const next = { ...post, ...saved, hasUnpublishedChanges: post.state === 'published' || post.hasUnpublishedChanges } as Post;
+        setPost((current) => current?.id === next.id ? { ...next, title: version === editVersion.current ? next.title : current.title } : current);
+        if (version === editVersion.current) setDirty(false);
         setPosts((current) => current.some((item) => item.id === next.id) ? current.map((item) => item.id === next.id ? next : item) : [next, ...current]);
-        setNotice('Draft saved. The live site has not changed.');
+        if (showNotice) setNotice('Draft saved. The live site has not changed.');
         return next;
+    }
+
+    async function publish() {
+        if (!post) return;
+        const version = editVersion.current;
+        const saved = dirty || !post.revision ? await save(false) : post;
+        if (!saved) return;
+        if (editVersion.current !== version) throw new Error('The text changed while saving. Your draft is retained; publish again to include the latest changes.');
+        let result;
+        try { result = await api('publish', { id: saved.id, revision: saved.revision, action: 'publish' }); }
+        catch (failure) { throw new Error(`Draft saved. Publishing could not be confirmed; check the live version before retrying. ${failure instanceof Error ? failure.message : ''}`); }
+        const next = { ...saved, ...result, hasUnpublishedChanges: false } as Post;
+        setPost((current) => current?.id === next.id ? { ...next, title: version === editVersion.current ? next.title : current.title } : current);
+        setPosts((current) => current.map((item) => item.id === next.id ? next : item));
+        setPreview(null); setView('write');
+        setNotice(version === editVersion.current ? 'Published. The live site now shows this version.' : 'Published the saved version. Your newer local edits are not published yet.');
+    }
+
+    async function showPreview() {
+        if (!post) return;
+        const version = editVersion.current;
+        const result = await api('preview', { document: structuredClone(document.current), title: post.title });
+        if (version !== editVersion.current) { setNotice('The draft changed while the preview loaded. Preview again for the latest version.'); return; }
+        setPreview(previewPage(result.html, post.title)); setView('preview');
     }
 
     async function uploadFile(file: File): Promise<string> {
@@ -103,6 +145,13 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
     function previewPage(html: string, title: string) {
         return `<!doctype html><html><head><base href="${escape(window.location.origin)}/"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="${escape(publicStyles)}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap"><title>${escape(title)}</title></head><body><div class="content preview-content tinos-regular"><h1 class="title tinos-regular">${escape(title)}</h1>${html}</div></body></html>`;
     }
+
+    const live = post?.state === 'published' || post?.state === 'legacy';
+    const canWrite = Boolean(post?.title.trim() && document.current);
+    const status = working || (uploads ? `Uploading ${uploads} image${uploads === 1 ? '' : 's'}…` : dirty ? 'Unsaved changes'
+        : post?.state === 'published' ? post.hasUnpublishedChanges ? 'Draft saved · changes not published' : 'Live · all changes published'
+        : post?.state === 'legacy' ? post.revision ? 'Original live · draft saved' : 'Original live'
+        : post?.state === 'hidden' ? 'Unpublished · draft retained' : post?.revision ? 'Draft saved · not on site' : 'Not saved yet');
 
     return <div className="admin-app">
         <header className="admin-header"><a className="admin-link" href="/">My brain is a goldmine</a><h1>Publishing</h1>
@@ -127,46 +176,43 @@ export default function AdminApp({ url, anonKey }: { url: string; anonKey: strin
             <label className="admin-label" htmlFor="password">Password</label><input className="admin-input" id="password" name="password" type="password" autoComplete="current-password" required />
             <button className="admin-button" disabled={busy} type="submit">{busy ? 'Signing in…' : 'Sign in'}</button>
         </form> : !authorized ? <p role="status">{error ? 'Sign out to use a different account, or ask the site owner to check your access.' : 'Checking editorial access…'}</p> : <div className="workspace">
-            <aside className="entry-list" aria-label="Entries"><h2 className="admin-heading">Entries</h2>
+            <aside className="entry-list" aria-label="Entries" data-collapsed={Boolean(post && !inventoryOpen)}>
+                <div className="entry-list-header"><h2 className="admin-heading">Entries</h2>
+                    {post && <button className="admin-button inventory-toggle" aria-expanded={inventoryOpen} aria-controls="entry-inventory" onClick={() => setInventoryOpen((open) => !open)}>{inventoryOpen ? 'Hide entries' : 'Choose entry'}</button>}</div>
+                <div id="entry-inventory">
                 <button className="admin-button" disabled={busy || uploads > 0} onClick={() => {
                     if (canLeave()) select({ id: crypto.randomUUID(), title: '', revision: 0, legacy_key: null, state: 'draft', document: [{ type: 'paragraph' }], legacyHtml: null });
                 }}>New entry</button>
                 <ul>{posts.map((item) => <li key={item.id}><button className="admin-button" aria-current={item.id === post?.id ? 'true' : undefined} disabled={busy || uploads > 0} onClick={() => {
                     if (canLeave()) void run(async () => select(await api(`posts/${item.id}`)));
-                }}><span>{item.title}</span><small>{item.state === 'legacy' ? 'Original live' : item.state === 'published' ? 'Published' : item.state === 'hidden' ? 'Unpublished' : 'Draft'}</small></button></li>)}</ul>
+                }}><span>{item.title}</span><small>{item.state === 'legacy' ? 'Original live' : item.state === 'published' ? item.hasUnpublishedChanges ? 'Published · newer draft' : 'Published' : item.state === 'hidden' ? 'Unpublished' : 'Draft'}</small></button></li>)}</ul>
+                </div>
             </aside>
-            <main className="writing-area">{!post ? <div className="editor-empty"><h2 className="admin-heading">Choose an entry, or start a new one.</h2><p className="admin-copy">Saving a draft never changes the live site. Preview and publish when you are ready.</p></div> : <>
-                <label className="admin-label" htmlFor="entry-title">Title</label><input className="admin-input" id="entry-title" value={post.title} disabled={busy} maxLength={200} onChange={(event) => { setPost({ ...post, title: event.target.value }); setDirty(true); setPreview(null); }} />
+            <main className="writing-area">{!post ? <div className="editor-empty"><h2 className="admin-heading">Choose an entry, or start a new one.</h2><p className="admin-copy">Save drafts privately, or publish when you are ready. Preview is optional.</p></div> : <>
+                <label className="admin-label" htmlFor="entry-title">Title</label><input className="admin-input" id="entry-title" value={post.title} disabled={busy} maxLength={200} onChange={(event) => { editVersion.current++; setPost({ ...post, title: event.target.value }); setDirty(true); setPreview(null); setView('write'); }} />
                 <div className="publishing-actions">
-                    <span role="status">{uploads ? `Uploading ${uploads} image${uploads === 1 ? '' : 's'}…` : dirty ? 'Unsaved changes' : post.revision ? 'Draft saved' : 'Not saved yet'}</span>
-                    <button className="admin-button" disabled={busy || uploads > 0 || !post.title.trim() || (!post.document && !importOriginal)} onClick={() => void run(async () => { await save(); })}>Save draft</button>
-                    <button className="admin-button" disabled={busy || uploads > 0 || !post.title.trim() || (!post.document && !importOriginal)} onClick={() => void run(async () => {
-                        const saved = dirty || !post.revision ? await save() : post;
-                        if (!saved) return;
-                        const result = await api('preview', { document: document.current });
-                        setPreview({ html: previewPage(result.html, saved.title), revision: saved.revision });
-                        setNotice('Preview ready. Review the layout below before publishing.');
-                    })}>Preview</button>
-                    <button className="admin-button primary" disabled={busy || uploads > 0 || dirty || !preview || preview.revision !== post.revision} onClick={() => void run(async () => {
-                        const result = await api('publish', { id: post.id, revision: post.revision, action: 'publish' });
-                        setPost({ ...post, ...result }); setPosts((current) => current.map((item) => item.id === post.id ? { ...item, ...result } : item)); setPreview(null);
-                        setNotice('Published. The live site now shows this version.');
-                    })}>Publish</button>
-                    {(post.state === 'published' || post.state === 'legacy') && <button className="admin-button" disabled={busy || uploads > 0 || dirty} onClick={() => {
+                    <span role="status">{status}</span>
+                    <button className="admin-button" disabled={busy || uploads > 0 || !canWrite || (!dirty && post.revision > 0)} onClick={() => void run(async () => { await save(); }, 'Saving…')}>Save draft</button>
+                    <button className="admin-button primary" disabled={busy || uploads > 0 || !canWrite} onClick={() => void run(publish, 'Publishing…')}>{live ? 'Update live post' : 'Publish'}</button>
+                    {live && <details className="publication-more"><summary>More</summary><button className="admin-button" disabled={busy || uploads > 0 || dirty} onClick={() => {
                         if (window.confirm('Remove this entry from the live site? Your saved draft and images will be retained.')) void run(async () => {
                             const result = await api('publish', { id: post.id, revision: post.revision, action: 'hide' });
-                            setPost({ ...post, ...result }); setPosts((current) => current.map((item) => item.id === post.id ? { ...item, ...result } : item)); setPreview(null);
+                            setPost({ ...post, ...result, hasUnpublishedChanges: false }); setPosts((current) => current.map((item) => item.id === post.id ? { ...item, ...result, hasUnpublishedChanges: false } : item)); setPreview(null); setView('write');
                             setNotice('Unpublished. Your saved draft is retained.');
-                        });
-                    }}>Unpublish</button>}
+                        }, 'Unpublishing…');
+                    }}>Unpublish</button>{dirty && <p className="admin-copy">Save your draft before unpublishing.</p>}</details>}
                 </div>
-                {!post.document && !importOriginal ? <div className="original-notice"><h2 className="admin-heading">{post.state === 'legacy' ? 'The original is still live.' : 'The original is retained.'}</h2><p className="admin-copy">Import it into BlockNote to edit. Importing can simplify galleries, spacing, and formatting; nothing changes publicly until you preview and publish.</p>
+                {(uploads > 0 || !canWrite) && <p className="publishing-help admin-copy">{uploads ? 'Finish uploading before saving or publishing.' : !post.title.trim() ? 'Add a title to save or publish.' : 'Import the original to start editing.'}</p>}
+                <nav className="editor-views" aria-label="Editor view">
+                    <button className="admin-button" aria-pressed={view === 'write'} disabled={busy} onClick={() => setView('write')}>Write</button>
+                    <button className="admin-button" aria-pressed={view === 'preview'} disabled={busy || uploads > 0 || !canWrite} onClick={() => void run(showPreview, 'Loading preview…')}>Preview</button>
+                </nav>
+                {view === 'write' ? !document.current && !importOriginal ? <div className="original-notice"><h2 className="admin-heading">{post.state === 'legacy' ? 'The original is still live.' : 'The original is retained.'}</h2><p className="admin-copy">Import it into BlockNote to edit. Importing can simplify galleries, spacing, and formatting; nothing changes publicly until you publish.</p>
                     <button className="admin-button" onClick={() => setImportOriginal(true)}>Import original into BlockNote</button></div> : <Suspense fallback={<p className="admin-copy" role="status">Loading BlockNote…</p>}>
-                    <DocumentEditor key={post.id} initialContent={post.document} legacyHtml={post.legacyHtml} disabled={busy} onChange={changed} onError={setError} uploadFile={uploadFile}
+                    <DocumentEditor key={post.id} initialContent={document.current} legacyHtml={post.legacyHtml} disabled={busy} onChange={changed} onError={setError} uploadFile={uploadFile}
                         resolveFileUrl={async (value) => mediaPath.test(value) ? (await api(`media/${value.slice(7)}`)).url : value} />
-                </Suspense>}
-                {preview && <section className="preview"><h2 className="admin-heading">Saved draft preview</h2><p className="admin-copy">This is a preview, not the live site. Embedded players may require opening the published page.</p>
-                    <iframe title="Saved draft preview" sandbox="allow-scripts" srcDoc={preview.html} /></section>}
+                </Suspense> : preview && <section className="preview"><h2 className="admin-heading">Preview</h2><p className="admin-copy">Preview does not save or publish. Return to Write to keep editing, or publish directly above.</p>
+                    <iframe title="Post preview" sandbox="allow-scripts" srcDoc={preview} /></section>}
             </>}</main>
         </div>}
     </div>;

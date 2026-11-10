@@ -18,19 +18,18 @@ test('writes, saves privately, previews, publishes, uploads, and unpublishes', a
     const errors: string[] = []; page.on('pageerror', (error) => errors.push(error.message));
     await signIn(page);
     await page.getByRole('button', { name: 'New entry', exact: true }).click();
+    if (testInfo.project.name === 'mobile') {
+        await expect(page.getByRole('button', { name: 'Choose entry', exact: true })).toHaveAttribute('aria-expanded', 'false');
+        await expect(page.locator('#entry-inventory')).not.toBeVisible();
+        await expect(page.getByLabel('Title', { exact: true })).toBeFocused();
+    }
     await page.getByLabel('Title', { exact: true }).fill('A new BlockNote entry');
     await page.locator('.bn-editor').fill('Words saved in BlockNote, not MDX.');
     await page.getByRole('button', { name: 'Save draft', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Draft saved. The live site has not changed.' })).toBeVisible();
     await page.screenshot({ path: `.impeccable/review/admin-${testInfo.project.name}.png`, fullPage: true });
     expect(await (await request.get('/')).text()).not.toContain('A new BlockNote entry');
-    await page.getByRole('button', { name: 'Preview', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Publish', exact: true })).toBeEnabled();
-    await expect(page.frameLocator('iframe[title="Saved draft preview"]').locator('link[href*="family=Tinos"]')).toHaveCount(1);
-    const preview = page.frameLocator('iframe[title="Saved draft preview"]');
-    await expect(preview.locator('link[rel="stylesheet"]').first()).toHaveAttribute('href', /\/_astro\/public\.[\w-]+\.css$/);
-    await expect(preview.locator('.content')).toHaveCSS('border-top-width', '4px');
-    await expect(preview.locator('.content')).toHaveCSS('padding-top', '16px');
     await page.getByRole('button', { name: 'Publish', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Published. The live site' })).toBeVisible();
     expect(await (await request.get('/')).text()).toContain('Words saved in BlockNote, not MDX.');
@@ -44,10 +43,16 @@ test('writes, saves privately, previews, publishes, uploads, and unpublishes', a
     expect(completed.status(), await completed.text()).toBe(200);
     const media = await completed.json();
     expect((await request.get(media.url)).status()).toBe(404);
-    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
     await page.getByRole('button', { name: 'Preview', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Publish', exact: true })).toBeEnabled();
-    await page.getByRole('button', { name: 'Publish', exact: true }).click();
+    const preview = page.frameLocator('iframe[title="Post preview"]');
+    await expect(preview.locator('link[href*="family=Tinos"]')).toHaveCount(1);
+    await expect(preview.locator('link[rel="stylesheet"]').first()).toHaveAttribute('href', /\/_astro\/public\.[\w-]+\.css$/);
+    await expect(preview.locator('.content')).toHaveCSS('border-top-width', '0px');
+    await expect(preview.locator('.content')).toHaveCSS('padding-top', testInfo.project.name === 'mobile' ? '8px' : '16px');
+    await page.getByRole('button', { name: 'Write', exact: true }).click();
+    await expect(page.locator('.bn-editor img')).toHaveCount(1);
+    await expect(page.getByRole('button', { name: 'Update live post', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Update live post', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Published. The live site' })).toBeVisible();
     const original = await readFile('public/assets/favicon/favicon-96x96.png');
     const published = await request.get(media.url); expect(published.status()).toBe(200);
@@ -56,6 +61,7 @@ test('writes, saves privately, previews, publishes, uploads, and unpublishes', a
     await request.put(reservation.url, { data: Buffer.alloc(original.length, 0), headers: { 'Content-Type': 'image/png' } });
     expect(await (await request.get(media.url)).body()).toEqual(original);
     page.once('dialog', (dialog) => dialog.accept());
+    await page.getByText('More', { exact: true }).click();
     await page.getByRole('button', { name: 'Unpublish', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Unpublished. Your saved draft' })).toBeVisible();
     expect(await (await request.get('/')).text()).not.toContain('A new BlockNote entry');
@@ -140,7 +146,7 @@ test('retains local text when another editing session saves first', async ({ pag
     expect((await request.post('/api/admin/posts', { headers: { Authorization: `Bearer ${access_token}`, Origin: 'http://127.0.0.1:4323' },
         data: { id: saved.id, revision: saved.revision, title: 'Saved in another session', document: saved.document } })).status()).toBe(200);
     await page.locator('.bn-editor').fill('Keep my unsaved local writing');
-    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await page.getByRole('button', { name: 'Publish', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('changed elsewhere');
     await expect(page.locator('.bn-editor')).toContainText('Keep my unsaved local writing');
     await expect(page.getByRole('status').filter({ hasText: 'Unsaved changes' })).toBeVisible();
@@ -156,4 +162,66 @@ test('rejects a non-image disguised as a PNG before sealing it', async ({ reques
     const complete = await request.post(`/api/admin/media/${reservation.id}`, { headers, data: {} });
     expect(complete.status()).toBe(400);
     expect((await request.get(`/media/${reservation.id}`)).status()).toBe(404);
+});
+
+test('publishes current edits directly and preserves pending-draft status after reload', async ({ page, request }) => {
+    await signIn(page);
+    await page.getByRole('button', { name: 'New entry', exact: true }).click();
+    await page.getByLabel('Title', { exact: true }).fill('Direct publication');
+    await page.locator('.bn-editor').fill('The first live version.');
+    const actions: string[] = [];
+    page.on('request', (request) => { if (request.method() === 'POST' && request.url().includes('/api/admin/')) actions.push(new URL(request.url()).pathname); });
+    await page.getByRole('button', { name: 'Publish', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Published. The live site' })).toBeVisible();
+    expect(actions).toEqual(['/api/admin/posts', '/api/admin/publish']);
+    await expect(page.getByRole('status').filter({ hasText: 'Live · all changes published' })).toBeVisible();
+    await page.locator('.bn-editor').fill('A private saved change.');
+    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Draft saved · changes not published' })).toBeVisible();
+    const live = await (await request.get('/')).text();
+    expect(live).toContain('The first live version.'); expect(live).not.toContain('A private saved change.');
+    await page.reload();
+    await page.getByRole('button', { name: /Direct publication/ }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Draft saved · changes not published' })).toBeVisible();
+    await page.getByRole('button', { name: 'Update live post', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Live · all changes published' })).toBeVisible();
+    expect(await (await request.get('/')).text()).toContain('A private saved change.');
+});
+
+test('previews unsaved text without saving or losing it on return to Write', async ({ page, request }) => {
+    await signIn(page);
+    await page.getByRole('button', { name: 'New entry', exact: true }).click();
+    await page.getByLabel('Title', { exact: true }).fill('Preview without saving');
+    await page.locator('.bn-editor').fill('Keep this unsaved text.');
+    let saves = 0;
+    page.on('request', (request) => { if (request.method() === 'POST' && request.url().endsWith('/api/admin/posts')) saves++; });
+    await page.getByRole('button', { name: 'Preview', exact: true }).click();
+    await expect(page.frameLocator('iframe[title="Post preview"]').locator('body')).toContainText('Keep this unsaved text.');
+    expect(saves).toBe(0);
+    expect(await (await request.get('/')).text()).not.toContain('Preview without saving');
+    await page.getByRole('button', { name: 'Write', exact: true }).click();
+    await expect(page.locator('.bn-editor')).toContainText('Keep this unsaved text.');
+    await expect(page.getByRole('status').filter({ hasText: 'Unsaved changes' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Publish', exact: true })).toBeEnabled();
+});
+
+test('retains the saved draft and revision when publishing cannot be confirmed', async ({ page, request }) => {
+    await signIn(page);
+    await page.getByRole('button', { name: 'New entry', exact: true }).click();
+    await page.getByLabel('Title', { exact: true }).fill('Recoverable publishing');
+    await page.locator('.bn-editor').fill('This draft must not disappear.');
+    let saves = 0;
+    page.on('request', (request) => { if (request.method() === 'POST' && request.url().endsWith('/api/admin/posts')) saves++; });
+    const unavailable = (route: import('@playwright/test').Route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Temporarily unavailable.' }) });
+    await page.route('**/api/admin/publish', unavailable);
+    await page.getByRole('button', { name: 'Publish', exact: true }).click();
+    await expect(page.getByRole('alert')).toContainText('Draft saved. Publishing could not be confirmed');
+    await expect(page.locator('.bn-editor')).toContainText('This draft must not disappear.');
+    await expect(page.getByRole('status').filter({ hasText: 'Draft saved · not on site' })).toBeVisible();
+    expect(await (await request.get('/')).text()).not.toContain('Recoverable publishing');
+    await page.unroute('**/api/admin/publish', unavailable);
+    await page.getByRole('button', { name: 'Publish', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Live · all changes published' })).toBeVisible();
+    expect(saves).toBe(1);
+    expect(await (await request.get('/')).text()).toContain('This draft must not disappear.');
 });

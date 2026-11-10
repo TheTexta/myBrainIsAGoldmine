@@ -81,6 +81,7 @@ export default function DocumentEditor({ initialContent, legacyHtml, disabled, o
     return <>
         <details className="editor-tools">
         <summary>Images and embeds</summary>
+        <p className="admin-copy">Use each upload’s caption to describe its content for readers and screen readers.</p>
         <label className="admin-label image-upload" htmlFor="image-upload">Upload image
             <input className="admin-input" id="image-upload" type="file" accept="image/jpeg,image/png,image/gif,image/webp" disabled={disabled || importing} onChange={async (event) => {
                 const file = event.currentTarget.files?.[0];

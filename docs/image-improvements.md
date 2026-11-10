@@ -46,6 +46,15 @@ This is local source work, not a deployment or proof of production acceptance.
   has already generated responsive variants. Untouched/failed optimization paths
   are not marked, production HTML omits the marker, and the audit stays enabled.
   Run `npm run test:images:dev` to check the development-only behavior.
+- Public post images open a native fullscreen dialog with only the image and an X.
+  Responsive viewer candidates use the same Astro service, up to 3840px without
+  upscaling beyond the original. Only the selected image loads; GIF sources remain
+  untouched. No React/editor bundle or additional image backend is introduced.
+  Without JavaScript the image links still open their larger source directly.
+- Descriptive alternatives and missing iframe titles are applied as presentation
+  metadata. Existing source descriptions were checked against the actual media;
+  filenames and generic “Photo” labels are not meaningful alternatives. New
+  uploads should use BlockNote's native caption feature for descriptions.
 
 ### Published R2 uploads and native caching
 

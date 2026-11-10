@@ -71,11 +71,16 @@ See [publishing setup and activation](docs/publishing.md) before deployment.
    new entry. Import may simplify galleries and spacing; the original remains
    public until an edited version is deliberately published.
 3. Write, upload images, or insert Spotify/VideoPress embeds. **Save draft** is
-   explicit and does not change the live site.
-4. **Preview** saves and renders the draft using the public renderer. Review it,
-   then **Publish**. Editing again invalidates that preview.
-5. **Unpublish** removes the entry and its exclusive media references from public
-   delivery, but retains the saved draft and original objects.
+   explicit and private. The status distinguishes unsaved text, a saved newer
+   draft, and the version currently live.
+4. **Publish** (or **Update live post**) saves the latest changes if needed, then
+   publishes directly. **Preview** is an optional view: it neither saves nor
+   publishes, and returning to **Write** preserves unsaved text. No preview click
+   is required to publish. Uploads must finish first; revision conflicts still stop
+   stale changes from overwriting another session.
+5. **More → Unpublish** removes the entry and revokes new original-route reads of
+   its exclusive media, retaining the saved draft and original objects. Previously
+   optimized copies may remain available through Astro's normal cache.
 
 The eleven existing entries retain their seven original panels until edited.
 New entries appear above the originals. The public site does not load React or
@@ -114,5 +119,19 @@ Published R2 images use the same native optimizer against their same-origin
 `/media/<uuid>` URL. **The owner accepts normal Astro caching:** an optimized copy
 of a previously published image may remain available after unpublishing. The
 original media route still checks current publication; drafts are never sent to
-the optimizer. No custom optimizer middleware, derivative endpoint, R2 cache,
+  the optimizer. No custom optimizer middleware, derivative endpoint, R2 cache,
 Worker, or database migration is used. See [image delivery](docs/image-improvements.md).
+
+## Reading and image viewing
+
+Post panels are borderless. Mobile internal padding is 8px (half desktop) while the
+glitter gutters and paragraph margins remain. Intentional paragraph/line breaks
+have extra blank-line spacing; automatic wrapping and BlockNote's editor styling
+are unchanged. The main site heading fits one unbroken line across the viewport;
+individual post titles may wrap. Public text selection inverts black/white.
+
+Click, tap, or keyboard-activate a post image to enlarge it in a fullscreen view.
+The only control is X; it and Escape restore focus
+and the reader's scroll position. Cat toggling and artwork navigation are not
+viewer targets. Existing posts receive descriptive image alt text and iframe
+titles at rendering time without changing archived HTML or requiring an import.

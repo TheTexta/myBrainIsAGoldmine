@@ -196,3 +196,59 @@ The new isolated `test:images:dev` regression passed, as did Astro check, 13 uni
 tests, 12 focused desktop/mobile browser checks (including production marker
 absence), eight unchanged visual snapshots, Vercel output, and the restored Node
 build. The user's existing development server was not restarted or stopped.
+
+## Reading interface and direct publishing — 2026-11-09
+
+Owner-selected changes: inverted public selection; borderless post panels;
+single-line viewport-fitted site heading; doubled intentional paragraph/line-break
+spacing without doubling wrapped leading; descriptive alt text and iframe titles;
+pointer/keyboard cat toggle; direct publication with optional, read-only Preview.
+The owner's final steering replaces the original gallery controls with **only an
+enlarged image and X close**, and selects **8px mobile padding** (half desktop's
+16px), retaining glitter gutters and paragraph margins.
+
+- Astro check passed: no errors/warnings, only the existing beforeunload hint.
+- All 17 unit tests and 54 desktop/mobile browser tests passed. Coverage includes
+  title fitting from 320–1920px, inverted selection, mobile padding, alt/title
+  metadata, minimal viewer controls/focus/scroll/error states, cat keyboard/pointer
+  behavior, direct publish without preview, preview without save, draft/live
+  status after reload, saved-draft retention on publication failure, and conflicts.
+- `test:images:dev` passed for twenty optimized post images and their alt/title
+  attributes. The actual running Astro audit also returned zero
+  `a11y-img-redundant-alt` and `a11y-missing-attribute` findings. This is evidence
+  for those checks, not a blanket claim about all accessibility rules.
+- Eight full-page visual references were intentionally updated for the approved
+  title/border/spacing changes, then passed a separate non-update run with zero
+  changed pixels and no failed local/WordPress assets. Original Git references and
+  `legacy.json` were not regenerated. Comparison tests preserve original source
+  identities and copy while explicitly permitting the requested alt/title changes.
+- A mobile viewer capture was initially taken before decoded pixels painted.
+  The capture now awaits `decode()` and two paint frames and asserts nonzero
+  intrinsic/rendered dimensions and viewport containment. Both targeted desktop/
+  mobile reruns passed and the replacement capture contains the actual image.
+- Vercel output/legacy aliases/native image routing and the final ordinary Node
+  build passed. Fixture/Vercel output was not left as the ordinary build.
+- Code review follow-ups addressed hidden mobile-inventory focus and viewer Tab
+  boundaries. The recovery/navigation UI from the initial gallery was removed
+  with the owner's simplification; only X/Escape/background dismissal remains.
+- Mechanical design review reports the temporary 100px heading-measurement size
+  and existing 4px structural admin divider. These are not an extra type step or
+  an added accent-card treatment; the documented fit-to-width/4px system remains.
+
+Save draft remains manual/private. Publish saves current edits when needed and
+uses the returned revision directly; a failed save stops publication, while an
+uncertain publication response preserves the saved draft and requests verification.
+Existing timestamps provide reload-safe newer-draft status without SQL/schema or
+authorization changes. BlockNote's supplied styles remain isolated and unchanged.
+
+Original media/archival HTML, upload validation/sealing, RLS/RPC locks, private
+preview delivery, native cached-image semantics, and per-project membership remain
+unchanged. No production write, deployment, protection change, original deletion,
+storage migration, or shared Worker change was performed. Real authenticated
+production acceptance and actual deployed Vercel-runtime checks remain separate.
+
+Final independent frontend finish review: **SHIP** for all fourteen supplied
+public/artwork/viewer/error/admin desktop/mobile captures, with no material
+blockers. This is not production-launch authorization. The optional pre-existing
+`.impeccable/design.json` metadata snapshot trails the updated DESIGN.md and was
+left untouched rather than bundling an unrelated drift-repair operation.

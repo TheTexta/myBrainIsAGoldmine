@@ -1,13 +1,13 @@
 import { getImage, imageConfig, inferRemoteSize } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { parseFragment, serialize, type DefaultTreeAdapterMap } from 'parse5';
+import { defaultTreeAdapter, html as htmlNamespace, parseFragment, serialize, type DefaultTreeAdapterMap } from 'parse5';
 import { mediaPath } from '../documents';
 import { gallerySizes, proseSizes, responsiveWidths, wordpressImages } from './settings';
 import { localImages } from './sources';
 
 type Element = DefaultTreeAdapterMap['element'];
 
-export async function responsiveImages(html: string, origin: string): Promise<string> {
+export async function responsiveImages(html: string, origin: string, postId?: string): Promise<string> {
     const fragment = parseFragment(html);
     const jobs: Promise<void>[] = [];
     const visit = (node: DefaultTreeAdapterMap['node'], gallery = false) => {
@@ -23,18 +23,37 @@ export async function responsiveImages(html: string, origin: string): Promise<st
         catch { return; }
         const remote = wordpressImages.get(src);
         const uploaded = mediaPath.test(src);
-        if (!local && !remote && !uploaded) return; // Includes every original GIF and private signed URL.
+        const attachViewer = (source: string, srcset = '') => {
+            if (!postId || !image.parentNode) return;
+            // Do not hijack an existing destination link.
+            for (let parent: DefaultTreeAdapterMap['parentNode'] | null = image.parentNode; parent; parent = 'parentNode' in parent ? parent.parentNode : null) {
+                if ('tagName' in parent && parent.tagName === 'a') return;
+            }
+            const alt = image.attrs.find((attribute) => attribute.name === 'alt')?.value;
+            const anchor = defaultTreeAdapter.createElement('a', htmlNamespace.NS.HTML, [
+                { name: 'class', value: 'post-image-link' }, { name: 'href', value: source },
+                { name: 'data-post-image', value: postId }, { name: 'data-viewer-srcset', value: srcset },
+                { name: 'aria-label', value: alt ? `Open: ${alt}` : 'Open attached content' },
+                { name: 'aria-haspopup', value: 'dialog' }, { name: 'aria-controls', value: 'post-image-viewer' },
+                { name: 'data-ui', value: '' },
+            ]);
+            const parent = image.parentNode;
+            parent.childNodes.splice(parent.childNodes.indexOf(image), 1, anchor);
+            anchor.parentNode = parent;
+            defaultTreeAdapter.appendChild(anchor, image);
+        };
+        if (!local && !remote && !uploaded) { attachViewer(src); return; }
         try {
             // Only public feed HTML takes this path. Private preview/editor HTML
             // never enters Astro's optimizer. Same-origin caching is intentional.
             const probe = uploaded ? await inferRemoteSize(new URL(src, origin).href, imageConfig) : undefined;
-            if (probe?.format === 'gif') return;
+            if (probe?.format === 'gif') { attachViewer(src); return; }
             const width = local?.width ?? remote?.width ?? probe!.width;
             const height = local?.height ?? remote?.height ?? probe!.height;
             const style = image.attrs.find((attr) => attr.name === 'style')?.value ?? '';
             const cap = style.match(/(?:max-width:\s*|width:min\(90%,)(\d+(?:\.\d+)?)px/)?.[1];
             const sizes = gallery ? gallerySizes : cap
-                ? `(max-width: 660px) min(${cap}px, calc(63vw - 36px)), min(${cap}px, 556px)` : proseSizes;
+                ? `(max-width: 660px) min(${cap}px, calc(63vw - 16px)), min(${cap}px, 564px)` : proseSizes;
             const imageSource = local ?? (uploaded ? new URL(src, origin).href : src);
             const optimized = await getImage({ src: imageSource,
                 width, height, widths: responsiveWidths(width), sizes, format: 'webp', quality: 85 });
@@ -49,9 +68,17 @@ export async function responsiveImages(html: string, origin: string): Promise<st
                 if (existing) existing.value = value;
                 else image.attrs.push({ name, value });
             }
+            if (postId) {
+                const largeWidth = Math.min(width, 3840);
+                const large = await getImage({ src: imageSource, width: largeWidth, height: Math.round(largeWidth * height / width),
+                    widths: [...new Set([640, 960, 1280, 1920, 2560, 3840, Math.min(width, 3840)].filter((candidate) => candidate <= width))],
+                    sizes: '100vw', format: 'webp', quality: 85 });
+                attachViewer(large.src, large.srcSet.attribute);
+            }
         } catch {
             // Optimization is optional: retain the original, still-gated URL if
             // its native metadata probe fails (e.g. protected preview hosting).
+            attachViewer(src);
         }
     };
     visit(fragment);

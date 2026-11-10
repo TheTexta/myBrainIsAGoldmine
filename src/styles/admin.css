@@ -32,7 +32,8 @@
     .login-form input { @apply mb-6; }
     .workspace { @apply grid grid-cols-[minmax(15rem,19rem)_minmax(0,1fr)]; min-height: calc(100vh - 80px); }
     .entry-list { @apply border-0 border-r-4 border-solid border-[#b8b8b8] px-5 py-8; }
-    .entry-list > button { @apply w-full; }
+    #entry-inventory > button { @apply w-full; }
+    .inventory-toggle { @apply hidden; }
     .entry-list ul { @apply my-4 list-none p-0; }
     .entry-list li button { @apply w-full border-0 bg-transparent px-3 py-4 text-left; overflow-wrap: anywhere; }
     .entry-list button[aria-current] { @apply bg-[#dedede]; }
@@ -40,8 +41,17 @@
     .entry-list small { @apply mt-1 text-admin-muted; }
     .writing-area { @apply min-w-0 bg-white py-8; padding-inline: round(nearest, clamp(1rem, 4vw, 4rem), var(--spacing)); }
     #entry-title { font-family: Georgia, serif; font-size: clamp(1.2rem, 2vw, 1.8rem); }
-    .publishing-actions { @apply mt-4 mb-8 flex flex-wrap items-center gap-2; }
+    .publishing-actions { @apply mt-4 mb-4 flex flex-wrap items-center gap-2; }
     .publishing-actions > span { @apply mr-auto text-admin-muted; font-size: .85rem; }
+    .publishing-help { @apply mb-6 text-admin-muted; font-size: .85rem; }
+    .editor-views { @apply mb-4 flex flex-wrap items-center gap-2; }
+    .editor-views .admin-button { @apply border-0 bg-transparent; }
+    .editor-views .admin-button[aria-pressed="true"] { @apply bg-admin-ink text-white; }
+    .publication-more { @apply relative; }
+    .publication-more > summary { @apply min-h-11 cursor-pointer px-3 py-3; }
+    .publication-more > summary:focus-visible { @apply outline-4 outline-offset-4 outline-admin-focus; }
+    .publication-more[open] { @apply border-4 border-solid border-admin-border bg-white p-3; }
+    .publication-more p { @apply my-2; }
     .original-notice, .editor-empty { @apply max-w-[65ch] py-8; }
     .editor-tools { @apply mb-8 border-0 border-b-4 border-solid border-[#ccc]; }
     .editor-tools > summary { @apply min-h-11 cursor-pointer py-3; }
@@ -53,7 +63,7 @@
     .embed-form button { @apply shrink-0; }
     .editor-embed { @apply box-border w-full border-4 border-solid border-[#b8b8b8] p-4; }
     .editor-embed span { @apply mt-2 block; overflow-wrap: anywhere; font-size: .85rem; }
-    .preview { @apply mt-12 border-0 border-t-4 border-solid border-[#999] pt-8; }
+    .preview { @apply mt-0 border-0 pt-0; }
     .preview iframe { @apply box-border h-168 w-full border-4 border-solid border-[#999] bg-black; }
 }
 
@@ -62,6 +72,11 @@
     .admin-header > a { font-size: 1.15rem; }
     .workspace { @apply grid-cols-1; }
     .entry-list { @apply border-r-0 border-b-4 p-4; }
+    .entry-list-header { @apply flex items-center justify-between gap-3; }
+    .entry-list-header h2 { @apply mb-0; }
+    .inventory-toggle { @apply block; }
+    .entry-list[data-collapsed="true"] #entry-inventory { display: none; }
+    #entry-inventory { @apply mt-4; }
     .entry-list ul { @apply max-h-52 overflow-auto; scrollbar-color: #777 #eee; }
     .writing-area { @apply px-4 py-6; }
     .publishing-actions > span { @apply mb-2 basis-full; }

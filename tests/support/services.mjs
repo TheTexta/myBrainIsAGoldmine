@@ -7,10 +7,12 @@ const outsiderId = '22222222-2222-4222-8222-222222222222';
 const seed = [...readFileSync(new URL('../../supabase/migrations/202610300001_mybrain_publishing.sql', import.meta.url), 'utf8')
     .matchAll(/\('(b171[^']+)','([^']+)',(\d+),(\d+),'([^']+)'\)/g)]
     .map(([, id, legacy_key, group, position, title]) => ({ id, legacy_key, group_index: Number(group), position: Number(position), title, revision: 0, document: null }));
-let drafts, publications, media, objects, outage;
+let drafts, publications, media, objects, outage, clock;
+const timestamp = () => new Date(clock += 1000).toISOString();
 function reset() {
-    drafts = new Map(seed.map((entry) => [entry.id, structuredClone(entry)]));
-    publications = new Map(seed.map((entry) => [entry.id, { ...entry, title: null, document: null, state: 'legacy' }]));
+    clock = Date.parse('2026-01-01T00:00:00Z');
+    drafts = new Map(seed.map((entry) => [entry.id, { ...structuredClone(entry), updated_at: timestamp() }]));
+    publications = new Map(seed.map((entry) => [entry.id, { ...entry, title: null, document: null, state: 'legacy', published_at: null }]));
     media = new Map(); objects = new Map(); outage = false;
 }
 reset();
@@ -70,14 +72,15 @@ createServer(async (request, response) => {
         const old = drafts.get(body.p_id);
         if ((old?.revision ?? 0) !== body.p_expected_revision) return json({ code: '40001' }, 409);
         const post = { ...old, id: body.p_id, title: body.p_title, document: body.p_document,
-            legacy_key: old?.legacy_key ?? null, position: old?.position ?? -Date.now(), group_index: old?.group_index ?? null, revision: (old?.revision ?? 0) + 1 };
+            legacy_key: old?.legacy_key ?? null, position: old?.position ?? -Date.now(), group_index: old?.group_index ?? null, revision: (old?.revision ?? 0) + 1, updated_at: timestamp() };
         drafts.set(post.id, post); return json(post);
     }
     if (table === 'mybrain_publish') {
         const post = drafts.get(body.p_id);
         if (!post || post.revision !== body.p_expected_revision) return json({ code: '40001' }, 409);
         post.revision++;
-        publications.set(post.id, { ...post, state: body.p_action === 'publish' ? 'published' : 'hidden', title: body.p_action === 'publish' ? post.title : null, document: body.p_action === 'publish' ? post.document : null });
+        post.updated_at = timestamp();
+        publications.set(post.id, { ...post, published_at: post.updated_at, state: body.p_action === 'publish' ? 'published' : 'hidden', title: body.p_action === 'publish' ? post.title : null, document: body.p_action === 'publish' ? post.document : null });
         return json({ state: body.p_action === 'publish' ? 'published' : 'hidden', revision: post.revision });
     }
     if (table === 'mybrain_reserve_media') {

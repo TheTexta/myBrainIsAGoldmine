@@ -5,13 +5,15 @@ import SiteFooter from '../components/SiteFooter.astro';
 import CatToggle from '../components/CatToggle.astro';
 import { loadFeed, type FeedEntry } from '../lib/feed';
 import { responsiveImages } from '../lib/images/public';
+import { accessiblePostMarkup } from '../lib/content-accessibility';
+import ImageViewer from '../components/ImageViewer.astro';
 
 export const prerender = false;
 let groups: FeedEntry[][] = [];
 let unavailable = false;
 try {
     groups = await loadFeed();
-    await Promise.all(groups.flat().map(async (entry) => { entry.html = await responsiveImages(entry.html, Astro.url.origin); }));
+    await Promise.all(groups.flat().map(async (entry) => { entry.html = await responsiveImages(accessiblePostMarkup(entry.html, entry.title), Astro.url.origin, entry.id); }));
 }
 catch { unavailable = true; Astro.response.status = 503; }
 Astro.response.headers.set('Cache-Control', 'no-store');
@@ -35,5 +37,6 @@ Astro.response.headers.set('Cache-Control', 'no-store');
         ))}
     </div>
     <SiteFooter />
+    <ImageViewer />
     <script is:inline src="https://videopress.com/videopress-iframe.js"></script>
 </SiteLayout>
