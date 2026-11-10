@@ -40,10 +40,11 @@ test('spawns every supplied item centrally over the optimized 3.png background',
     await expect(page.locator('body')).toHaveCSS('background-size', 'cover');
     const back = page.getByRole('link', { name: 'Back to posts', exact: true });
     await expect(back).toHaveCSS('border-top-width', '0px');
-    await expect(back).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(back).toHaveCSS('background-color', 'rgb(0, 0, 0)');
     await expect(back).toHaveCSS('color', 'rgb(255, 255, 255)');
     await expect(back).toHaveCSS('text-decoration-line', 'none');
     await back.hover(); await expect(back).toHaveCSS('color', 'rgb(0, 0, 0)');
+    await expect(back).toHaveCSS('background-color', 'rgb(255, 255, 255)');
     await page.mouse.move(0, 0);
     await back.focus(); await expect(back).toHaveCSS('outline-style', 'none');
     await expect(back).toHaveCSS('text-decoration-line', 'none');

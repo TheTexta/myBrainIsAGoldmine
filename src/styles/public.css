@@ -1,8 +1,19 @@
 @import "./tailwind.css";
 
+@font-face {
+    font-family: "TDAText";
+    src: url('/fonts/tdatext/TDAText.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
 @layer base {
+    html { @apply bg-black; color-scheme: dark; }
     body {
-        @apply m-0 flex min-h-screen flex-col bg-black;
+        /* Keep negative-z floating media above the body's own background now
+           that the root canvas is explicitly black instead of body-propagated. */
+        @apply isolate m-0 flex min-h-screen flex-col bg-black;
         background-image: url('/glitter.gif');
         background-repeat: repeat;
     }
@@ -31,7 +42,16 @@
 }
 
 @layer components {
+    /* Opt in only navigation/viewer chrome, never artwork or image buttons. */
+    .crt-control {
+        @apply box-border inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-none border-0 bg-black px-3 py-2 text-white no-underline;
+    }
+    .crt-control:is(:hover,:focus-visible,:active) { @apply bg-white text-black; background-image: none; }
+    .crt-control:focus-visible { @apply outline-4 outline-offset-4 outline-white; }
     .reading-page { cursor: pointer; background-position-y: var(--glitter-scroll-offset, 0px); }
+    /* Do not blend the fixed CRT over transparent space exposed by scroll bounce.
+       Clip vertically only; no transform/containing block or horizontal fitting. */
+    body.reading-page:has(> .crt-overlay[data-crt="lottes"]) { clip-path: inset(0 -100vmax); }
     .reading-page :is(.content,.site-header) { cursor: auto; }
     .crt-overlay { @apply pointer-events-none fixed inset-0 m-0 box-border w-full max-w-none max-h-none border-0 bg-transparent p-0 invisible; height: 100dvh; z-index: 2147483647; mix-blend-mode: multiply; }
     .crt-overlay[data-crt="lottes"] { @apply visible; }
@@ -49,14 +69,14 @@
     .floating-gallery .floating-image[aria-expanded="true"] { @apply z-1 cursor-zoom-out; }
     .floating-gallery .floating-image:focus-visible { @apply outline-4 outline-offset-4 outline-white; }
     .gallery-controls { @apply absolute z-1; top: max(16px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left)); }
-    .gallery-back { @apply m-0 inline-flex min-h-11 w-auto items-center border-0 bg-transparent p-0 text-white no-underline; font-family: var(--font-writing); font-size: 1rem; }
-    .gallery-back:hover { @apply text-black; background-image: none; }
-    .gallery-back:focus-visible { @apply text-black; outline: none; }
+    .gallery-back { @apply m-0 w-auto font-ui; font-size: 20px; line-height: 1; font-synthesis: none; }
+    .gallery-back:focus-visible { outline: none; }
     .gallery-entry-link:focus-visible { @apply outline-4 outline-offset-4 outline-white; }
     .gallery-entry-link { @apply m-0 flex min-h-11 w-auto items-center border-0; font-size: 1rem; }
     .site-header { @apply border-b-4 border-0 text-3xl sm:text-6xl lg:text-7xl xl:text-8xl}
-    .header-title { @apply mx-auto block; white-space: nowrap; }
-    .site-header-action { @apply m-0 block w-full cursor-pointer border-0 bg-transparent p-0 text-white; font: inherit; }
+    .header-title { @apply mx-auto block font-ui; white-space: nowrap; font-synthesis: none; }
+    .site-header-action { @apply m-0 block w-full cursor-pointer border-0 bg-black p-0 text-white; font: inherit; }
+    .site-header-action:hover { @apply bg-white text-black; }
     .site-header-action:focus-visible { @apply bg-white text-black outline-4 -outline-offset-4 outline-white; }
     .site-container { @apply flex w-full flex-col self-center justify-center box-border; }
     .feed-container { @apply items-center gap-32 pt-16; margin-bottom: round(nearest, min(15vw, 7vh), var(--spacing)); }
@@ -129,12 +149,10 @@
     .image-viewer::backdrop { @apply bg-black; }
     .image-viewer [hidden] { display: none; }
     .viewer-close {
-        @apply absolute z-1 grid h-11 w-11 cursor-pointer place-items-center border-0 bg-black p-2 text-white;
+        @apply absolute z-1 grid h-11 w-11 place-items-center p-2;
         top: max(var(--viewer-inset), env(safe-area-inset-top));
         right: max(var(--viewer-inset), env(safe-area-inset-right));
     }
-    .viewer-close:hover { @apply bg-white text-black; }
-    .viewer-close:focus-visible { @apply outline-4 outline-offset-4 outline-white; }
     .viewer-stage { @apply relative m-0 flex min-h-0 items-center justify-center; }
     .viewer-image { @apply m-0 block h-auto w-auto max-h-full max-w-full border-0 object-contain; }
     .viewer-feedback { @apply m-0 text-center; }

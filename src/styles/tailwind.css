@@ -6,6 +6,7 @@
 @theme {
     --spacing: 0.25rem;
     --font-writing: "Tinos", serif;
+    --font-ui: "TDAText", monospace;
     --font-admin: system-ui, sans-serif;
     --color-admin-ink: #161616;
     --color-admin-canvas: #f4f4f4;

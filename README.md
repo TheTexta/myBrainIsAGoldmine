@@ -134,6 +134,18 @@ text, without blending photographs or embeds. The source lives at
 optimized WebP background to both live posts and read-only admin previews.
 Fallback white remains readable if the texture cannot load. Paper text selection
 inverts to white on black, and links/focus indicators remain visible on paper.
+The underlying page canvas is explicitly black for overscroll. Visible glitter,
+gallery artwork and post paper remain page/post backgrounds; the body isolates
+its stacking group so floating media stay above its opaque background.
+Public browser surfaces use a black theme colour and a dark color-scheme hint;
+the editor retains its separate light scheme. The visible glitter/parallax and
+paper posts remain unchanged.
+
+The site heading and gallery Back to posts button use self-hosted TDAText regular.
+The heading retains its responsive size classes; Back uses 20px. The original
+font, pinned-source details and OFL license are under `public/fonts/tdatext/`.
+Header/Back/viewer controls are white on black, inverting on hover and keyboard
+focus. Footer, post writing, artwork and admin typography are unchanged.
 
 Panels are borderless with zero outer margin. The owner's later local `p-0` edit
 is retained; mobile keeps the existing `px-1` (4px horizontal) override. The
@@ -164,7 +176,11 @@ including the native image viewer. It has `pointer-events: none` (including its
 backdrop), `aria-hidden`, and `inert`; mouse, touch, keyboard, and scrolling remain
 native. Ordinary page compositing avoids Safari's accelerated-popover blend path;
 the canvas moves into native image dialogs to stay above them. Its WebGL context
-and shader output both use premultiplied alpha. This is a spatial mask, **not a capture/Gaussian reconstruction
+and shader output both use premultiplied alpha. On the homepage, vertical document
+clipping prevents the fixed CRT from painting a pale layer into Chrome's exposed
+overscroll canvas. It does not transform/reposition content, suppress bounce, or
+change the shader. Clipping disengages when the canvas moves into the native viewer.
+This is a spatial mask, **not a capture/Gaussian reconstruction
 or geometric warp of the DOM**. Artwork routes and admin have no overlay.
 
 There is no Three.js, React island, texture atlas, or continuous shader loop.
@@ -212,7 +228,12 @@ All 16 items spawn in the centre, larger than on the homepage, and bounce off
 viewport edges only—there are no photo-to-photo collisions. Click or keyboard-
 activate a photo to expand it while it keeps moving; only one is expanded, and
 reactivating it or Escape shrinks it. Resize clamps photos inside the viewport.
-The plain Back to posts link is white, black on hover/focus, without a border,
-background, underline or boxed outline. Reduced-motion/media lifecycle safeguards
+Enlargement retains the currently decoded bitmap while a higher-resolution copy
+loads and decodes off-DOM. The ready replacement is presented above the previous
+image before that image is retired, avoiding a blank source-switch frame. Failed
+or superseded upgrades keep the current image; warmed high-resolution copies are
+retained when shrinking. GIF/video playback handling is separate and unchanged.
+The Back to posts link is white on black, inverting to black on white for hover/focus,
+without a border, underline or boxed outline. Reduced-motion/media lifecycle safeguards
 remain. Run focused Chromium/WebKit coverage with `npm run test:graphics` after
 installing its browser engines (`npx playwright install chromium webkit`).

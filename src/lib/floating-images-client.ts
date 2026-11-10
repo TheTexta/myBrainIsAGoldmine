@@ -1,4 +1,5 @@
 import { constrainFloat, gallerySize, stepFloat, type FloatingImage, type FloatRect } from './floating-images';
+import { createGalleryImageUpgrades } from './gallery-image-upgrades';
 
 export function mountFloatingImages(layer: HTMLElement) {
     const photos = [...layer.querySelectorAll<HTMLElement>('[data-floating-image]')];
@@ -7,6 +8,7 @@ export function mountFloatingImages(layer: HTMLElement) {
     const stage = gallery ? layer.closest<HTMLElement>('[data-gallery-stage]')! : null;
     const aspects = photos.map((photo) => Number(photo.dataset.aspect));
     let expanded: number | null = null;
+    const imageUpgrades = gallery ? createGalleryImageUpgrades((photo) => expanded !== null && photos[expanded] === photo) : null;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const dataSaver = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     const animated = photos.map((photo) => ({ photo, video: photo.querySelector<HTMLVideoElement>('video'), still: photo.querySelector<HTMLSourceElement>('[data-animated-still]') }))
@@ -73,8 +75,7 @@ export function mountFloatingImages(layer: HTMLElement) {
                 Object.assign(particle, size); constrainFloat(particle, width, height, []);
                 photos[index].style.width = `${particle.width}px`; photos[index].style.height = `${particle.height}px`;
                 photos[index].setAttribute('aria-expanded', String(expanded === index));
-                const image = photos[index].querySelector('img');
-                if (image) image.sizes = `${Math.ceil(particle.width)}px`;
+                imageUpgrades!.update(photos[index], particle.width);
             });
             return;
         }
@@ -158,6 +159,7 @@ export function mountFloatingImages(layer: HTMLElement) {
     function dispose() {
         if (disposed) return;
         disposed = true; stop(); sizes.disconnect(); dialogs.disconnect(); mediaVisibility.disconnect(); syncMedia();
+        imageUpgrades?.dispose();
         window.removeEventListener('resize', layoutChanged);
         window.removeEventListener('pagehide', pageHide); window.removeEventListener('pageshow', pageShow);
         document.removeEventListener('visibilitychange', visibility); reducedMotion.removeEventListener('change', motionChanged);

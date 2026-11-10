@@ -23,11 +23,15 @@ typography:
     fontFamily: '"Tinos", serif'
     fontSize: "15px"
   public-header:
-    fontFamily: "inherit"
+    fontFamily: '"TDAText", monospace'
     fontSize: "30px"
   public-header-mobile:
-    fontFamily: "inherit"
+    fontFamily: '"TDAText", monospace'
     fontSize: "30px"
+  public-gallery-back:
+    fontFamily: '"TDAText", monospace'
+    fontSize: "20px"
+    fontWeight: 400
   public-heading-and-link:
     fontFamily: "inherit"
     fontSize: "32px"
@@ -125,8 +129,11 @@ automatic line wrapping keeps its normal leading. The shared site heading is
 one unbroken line using the owner's `text-3xl sm:text-6xl lg:text-7xl xl:text-8xl`
 scale. Post `h1` elements use the local `text-4xl` edit. The owner explicitly chose to push the local removal
 of automatic title fitting as-is; narrow/real-font overflow and the now-mismatched
-fit regression test remain known issues. Its face remains inherited rather than
-being reassigned to Tinos. Post titles keep normal wrapping. Paper writing selection is
+fit regression test remain known issues. Its face is now self-hosted TDAText regular,
+also used by the gallery's Back to posts button at 20px. The unmodified font and
+OFL license live under `public/fonts/tdatext/`; no runtime GitHub font fetch is used.
+The footer, writing, artwork lettering, and admin typography are unchanged.
+Post titles keep normal wrapping. Paper writing selection is
 black background/white text; the surrounding dark presentation keeps white/black selection.
 
 Admin uses the system stack. Its site link and title input use Georgia/serif.
@@ -159,6 +166,17 @@ and can be reopened explicitly. No vendor editor geometry is overridden.
 
 ## Elevation & Depth
 
+The root canvas is solid black so overscroll does not inherit a paper-coloured
+underlay. Page-specific backgrounds remain on the body and paper stays on posts.
+Body isolation keeps negative-z floating media above the body's own background,
+without transforms or a new positioning container that would move the cat/CRT.
+Public pages also declare a black browser theme and dark color scheme, without
+changing the explicitly white post paper or the admin's separate light scheme.
+When the active homepage CRT is a direct body child, a vertical-only document clip
+keeps it off the exposed overscroll canvas. Its horizontal expansion preserves
+the existing header overflow. No transform or new fixed-position containing block
+is added; moving the canvas into the native viewer disengages the body clip.
+
 Shared public/admin styles use borders instead of shadows. Public depth comes
 from original layered imagery, blend modes, glitter, and the footer fade.
 BlockNote's supplied interface styling remains separately scoped.
@@ -185,6 +203,10 @@ aspect ratios to make intrinsic dimensions land on that scale.
 
 Public header wording and optional navigation action are preserved. Large links
 retain glitter hover; the footer credit is a smaller borderless exception.
+The header action, gallery Back button, and viewer X use black backgrounds and
+white foregrounds, inverting instantly on hover and keyboard focus. The Back
+button has no border, underline, or boxed focus outline; its fill inversion is
+the focus indication. Footer markup and styling retain their previous treatment.
 Published prose links are inline and underlined. Cat toggles, mirror layers,
 image swaps, and GIF dimensions are individual artwork behavior, not tokens for
 new components.

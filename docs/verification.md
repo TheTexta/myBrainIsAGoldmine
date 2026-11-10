@@ -487,3 +487,189 @@ native-popover promotion and uses ordinary page/dialog compositing instead.
 **The owner requested immediate commit/push before another final test run**, so
 that last change has not been rerun and affected-Safari confirmation remains needed.
 Existing owner-accepted header/spacing test mismatches remain outside this fix.
+
+## Post-push verification of `885f4de` — 2026-11-10
+
+- Astro check passed with zero errors/warnings and the existing beforeunload hint.
+- All 32 unit tests and all 48 focused Chromium/WebKit desktop/mobile graphics
+  cases passed **after** the final ordinary-page/dialog compositing change.
+  Coverage includes no-pale-veil pixel tests, resize across large layer sizes,
+  native dialogs, input pass-through, context loss, viewport-locked scanlines,
+  centred gallery spawn, moving single-photo expansion, navigation and reduced motion.
+- Vercel build/native routing/legacy aliases passed; the final ordinary Node build
+  passed and replaced the fixture-configured build. The existing chunk warning remains.
+- Production deployment `dpl_27V7EYMqwXRHjoSMFLUJ5iD9hVqK` reported `READY`.
+  Anonymous `/` and `/gallery` returned HTTP 200; `/api/admin/posts` still returned
+  HTTP 401 (`Sign in to continue.`). Preview/deployment protection remains enabled.
+- Tested the deployed site in **native Safari 27.0.1**, not only Playwright's newer
+  WebKit, using the built-in `safaridriver --mcp` without changing automation settings.
+  Isolated test tabs verified premultiplied alpha, BODY placement outside the viewer,
+  DIALOG placement inside the actual image viewer, and a successful click through
+  the overlay. Correctly identified test tabs were closed after verification.
+- Native Retina captures at 1024px and 1440px CSS widths, after 600px document
+  scrolling, and inside the actual image viewer retained black patches at RGB 0.
+  White patches retained the scanline pattern (approximately 236–255 per channel),
+  rather than a pale flat veil. The canvas stayed at viewport top 0 during scrolling.
+  Saturated-colour relative luminance stayed below the unfiltered reference:
+  maximum approximately 0.14661 versus 0.14778. Native ICC-managed captures varied
+  by a few individual colour-channel bytes, so no byte-identical cross-browser
+  colour claim is made. Gallery and synthetic native-dialog checks also passed.
+
+Native test patches were temporary DOM changes in isolated public-site tabs;
+no production content/auth/storage mutation occurred. No application-code change
+or additional push was needed. The full legacy suite's previously accepted
+header/spacing mismatches are not represented as resolved by these focused results.
+
+## Cold gallery-image upgrade flicker — 2026-11-10
+
+The owner isolated a one-frame blank after enlargement to uncached higher-resolution
+copies. The renderer previously changed `sizes` on the displayed image, allowing
+the browser to replace its current responsive bitmap before the new one painted.
+
+Gallery still-photo upgrades now decode a detached candidate, lock its selected
+URL, and decode that locked source before inserting it over the existing bitmap.
+The previous bitmap remains through a presentation frame before removal. The
+displayed image is never faded/hidden or assigned an unloaded `sizes` candidate;
+the moving button/geometry and single-expanded-photo state are unchanged. Failed,
+cancelled, superseded and disposed upgrades retain the old image safely. GIF/video
+and homepage image paths are excluded.
+
+The first focused run passed Astro check, all 32 unit tests and 12 Chromium/WebKit
+desktop/mobile cold-load, failed-load and superseded-selection cases. Independent
+read-only review found no blocking lifecycle/source-selection issue. A subsequent
+rendered red/blue bitmap test checks individual presentation frames during an
+uncached upgrade, in addition to the DOM-readiness invariant.
+
+Final local verification passed: Astro check (zero errors/warnings, existing hint),
+all 32 unit tests, and all 64 Chromium/WebKit desktop/mobile graphics cases.
+The cold-upgrade raster test keeps the gallery moving, blocks the higher-resolution
+response, and samples rendered pixels through the handoff: every sampled frame
+contains the old red or new blue bitmap, never the background. Failure and stale-
+selection cases also pass. Native Vercel routing/legacy aliases and the final
+ordinary Node build pass; existing bundle-size warnings remain. This local fix
+has not been committed or deployed, and native Safari's older engine has not been
+separately frame-captured for this new upgrade path.
+
+## Black overscroll canvas — 2026-11-10
+
+The owner explicitly selected **overscroll only**, preserving visible glitter,
+the gallery's `3.png`, and each post's paper. The public root now has an explicit
+black background; the body retains its existing backgrounds and is isolated as
+its own stacking group. That isolation keeps the existing negative-z floating
+media above the body's now non-propagated opaque background. No body transform,
+positioning container, text/paper change or overscroll suppression was added.
+
+New cross-engine checks expose the underlying root by temporarily hiding the body
+and sample its actual rendered black pixels. A separate bright-green image fixture
+checks that the floating layer still paints above the body, rather than merely
+existing in the DOM. These are canvas/layering checks, not a claim that a headless
+browser reproduced a physical macOS trackpad rubber-band gesture. Existing parallax
+pixel checks are included in the focused graphics suite.
+
+The first combined run passed Astro check, 32 unit tests and 82/84 graphics cases.
+Both failures were the new root test comparing three RGB channels with WebKit's
+four-channel opaque-black screenshot statistics (`0, 0, 0, 255`), not a non-black
+render. The assertion now checks RGB separately and requires opaque alpha when
+present; it does not discard or tolerate non-black pixels.
+
+The corrected combined run passed Astro check (zero errors/warnings, existing
+beforeunload hint), all 32 unit tests and all 84 Chromium/WebKit desktop/mobile
+graphics cases. Root-canvas black pixels, visible floating photos, unchanged paper
+and page artwork, parallax, CRT compositing and cold image upgrades all passed.
+Vercel build/native routing/legacy aliases and the final ordinary Node build passed;
+the existing bundle-size warning remains. Mechanical detection found no issues in
+the changed public CSS. The full legacy suite's owner-accepted header/spacing
+mismatches remain outside this focused verification. No physical rubber-band
+gesture or separate native Safari check is claimed for this change. Nothing was
+committed, pushed or deployed.
+
+## TDAText controls and overscroll follow-up — 2026-11-10
+
+The owner requested TDAText for CRT-style public UI and black/white button
+inversion, then clarified the font targets: the site heading and gallery Back
+button. Footer markup/styling is restored exactly; post writing, artwork and
+admin typography are unchanged. The heading keeps its existing responsive sizes
+and no-fit layout; Back uses the font author's recommended 20px size. Header,
+Back and viewer X invert instantly for hover/keyboard focus; photo/cat buttons
+remain image interactions rather than black UI boxes.
+
+The unmodified regular TTF is pinned to upstream revision
+`b013ad82c6ba375237640b67fbb4a39c5cab6f2e`, checksum-verified against GitHub's blob
+identity, and self-hosted with its full OFL license and provenance. The upstream
+file named `.woff2` has an sfnt/TrueType header, so the actual `.ttf` is served with
+the matching CSS format declaration instead. No font conversion/subsetting or
+external runtime font request was introduced for TDAText.
+
+A later request to make the site background black was interpreted as replacing
+visible glitter. The owner reported the missing sparkle texture, so that
+interpretation was undone: animated glitter, reduced-motion still and two-thirds
+parallax are all restored. Root black/body isolation remain. Live development
+inspection confirmed black root, glitter body, local paper backgrounds and a loaded
+TDAText face. Public pages now additionally declare black `theme-color` and dark
+`color-scheme` metadata/CSS for browser-owned surfaces. The original archived
+favicon manifest is untouched; its installed-app colours are not represented as
+changed. The owner's reported physical white overscroll is not yet reproduced or
+confirmed fixed. The owner identified the affected target as the local site in
+Chrome; the black theme/dark scheme follow-up still needs their physical
+rubber-band confirmation after reload.
+
+The first intermediate run passed check and 27 unit tests but failed 12/100
+graphics cases before reaching builds. Four cases targeted the subsequently
+withdrawn solid-black visible background. Four new button pixel assertions used
+Sharp statistics before materializing the crop; four keyboard checks blurred the
+only dialog control before testing its focus trap. Those new test setups are being
+corrected; this intermediate result is not represented as a passing final run.
+
+The restored-glitter run passed check, all 32 unit tests and 96/100 graphics cases.
+The four remaining failures were the new Back-button keyboard test assuming Back
+was the first tab stop, despite 16 photo buttons preceding it. The test now reaches
+Back through its actual preceding tab stop; no navigation/focus behavior was changed.
+
+The next full run passed 98/100 graphics cases; only WebKit's platform-specific
+link traversal differed. Using its native Option+Tab path made all four focused
+Back/font/raster/focus cases pass, followed by successful Vercel routing/aliases
+and ordinary Node builds. Mechanical detection is clear, all 28 archival assets
+remain checksum-identical, and the local TTF matches its pinned SHA-256.
+
+## Chrome-only CRT overscroll compositing — 2026-11-10
+
+The owner confirmed Safari already shows black bounce, while local Chrome turns
+white only with CRT enabled; `?crt=off` removes the problem. This is stronger
+diagnostic evidence than the earlier hidden-body root-colour test.
+
+A separate Chrome test tab exposed a green root behind a 96px body margin. The
+viewport-fixed CRT remained at top 0 but painted a pale band outside the isolated
+body: sampled RGB ranges were R189–204/G239–255/B188–204 instead of green.
+Applying `clip-path: inset(0 -100vmax)` to the body restored exactly RGB 0/255/0
+there, while retaining the on-page shader and viewport anchoring. These are
+synthetic exposed-root measurements, not an automated physical rubber-band claim.
+
+The repair is scoped to a reading-page body with its active CRT as a direct child.
+Only vertical document bounds clip; horizontal expansion preserves the existing
+header layout. No transform, positioning container, shader/strength change, user-
+agent sniffing, or bounce suppression is introduced. Reparenting CRT into the
+native dialog makes the selector false, preserving the working viewer path.
+The gallery's artwork and no-scroll stage remain separate.
+
+Four Chromium/WebKit desktop/mobile top-and-bottom gap cases pass. Their isolated
+painting fixture removes feed markup to avoid conflating known legacy mobile
+overflow with canvas clipping; the other graphics cases retain the actual page,
+posts, photos, cat, controls and native viewer. Independent read-only review found
+no source-level blocker and retained the real Chrome/Safari bounce acceptance gate.
+The complete post-repair run passed Astro check (zero errors/warnings, existing
+hint), all 32 unit tests, all 104 Chromium/WebKit desktop/mobile graphics cases,
+Vercel routing/legacy aliases and the final ordinary Node build. Coverage includes
+both exposed document edges, fixed scanlines, saturated/black/white compositing,
+real posts/floating-photo visibility, gallery navigation, native dialogs and
+click-through. Existing bundle-size warnings and owner-accepted legacy header/
+spacing mismatches remain; the full legacy suite is not represented as green.
+Mechanical detection and `git diff --check` are clear. The owner subsequently
+confirmed the local Chrome fix with CRT enabled: **"it works well"**. A separate
+physical Safari check after this clipping change was not reported; its automated
+WebKit coverage passes. Nothing was committed or pushed.
+
+The owner then explicitly authorized **commit + push** of this verified snapshot
+on `main`, including the earlier gallery bitmap-handoff fix, TDAText controls and
+confirmed Chrome overscroll repair. The push triggers the configured Vercel
+deployment; no database/storage/authentication change or manual promotion is
+included. The existing legacy header/spacing release exceptions remain unchanged.

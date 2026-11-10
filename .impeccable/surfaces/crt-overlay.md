@@ -21,6 +21,10 @@ loop. `pointer-events:none` applies to canvas and backdrop; it is inert/aria-hid
 with no pointer/focus handlers. Matched premultiplied shader/context output and
 ordinary page compositing avoid Safari's accelerated-popover blend path. Reparent
 into the active native image dialog for top-layer coverage. No global foreground wrapper.
+On the homepage, clip the active body-hosted CRT to the document's vertical bounds
+so it cannot paint into the root canvas exposed during Chrome bounce. Preserve
+horizontal overflow, viewport-fixed positioning, the shader, and native bounce.
+Disengage the clip while the canvas belongs to a native dialog.
 
 STATES: Native page remains usable without WebGL, after context loss, or with
 `?crt=off`. Original GIF remains unchanged; reduced motion has a first-frame PNG
@@ -30,3 +34,6 @@ up observers/listeners/resources. No admin/artwork-route overlay or deployment.
 VERIFY: Visible mask over white pixels/unaltered black pixels above a native modal,
 all input passing through, popup fallback, viewport anchoring while scrolling,
 cat at left, context loss/opt-out, keyboard viewer restoration, desktop/mobile.
+An exposed-root pixel fixture checks both document edges without claiming to
+reproduce an OS trackpad gesture; physical Chrome/Safari bounce remains a separate
+acceptance check.
