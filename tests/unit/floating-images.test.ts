@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
-import { constrainFloat, overlapsPost, stepFloat, type FloatingImage } from '../../src/lib/floating-images';
+import { constrainFloat, gallerySize, overlapsPost, stepFloat, type FloatingImage } from '../../src/lib/floating-images';
+import { floatingMediaDescriptions } from '../../src/lib/floating-media-descriptions';
 
 const particle = (changes: Partial<FloatingImage> = {}): FloatingImage => ({ x: 10, y: 10, width: 30, height: 40, vx: 20, vy: 30, ...changes });
 describe('floating image collisions', () => {
@@ -38,6 +39,23 @@ describe('floating image collisions', () => {
         expect([image.x, image.y]).toEqual([11, 11.5]);
         expect(constrainFloat(particle(), 100, 100, [{ x: 0, y: 0, width: 100, height: 100 }])).toBe(false);
     });
+    it('keeps normal and expanded gallery photos proportional and inside viewport bounds', () => {
+        for (const [width, height] of [[320, 568], [390, 844], [844, 390], [1440, 900]]) {
+            for (const aspect of [0.315, 0.5625, 0.75, 1.5]) {
+                const normal = gallerySize(aspect, width, height, false), expanded = gallerySize(aspect, width, height, true);
+                expect(normal.width / normal.height).toBeCloseTo(aspect, 10);
+                expect(expanded.width / expanded.height).toBeCloseTo(aspect, 10);
+                expect(expanded.width).toBeGreaterThan(normal.width);
+                expect(expanded.width).toBeLessThanOrEqual(width - 32);
+                expect(expanded.height).toBeLessThanOrEqual(height - 32);
+            }
+        }
+    });
+    it('does not add peer collisions to gallery movement', () => {
+        const a = particle({ x: 100, y: 100, vx: 20, vy: 0 }), b = particle({ x: 100, y: 100, vx: -20, vy: 0 });
+        stepFloat(a, 0.05, 500, 500, []); stepFloat(b, 0.05, 500, 500, []);
+        expect([a.x, b.x, a.vx, b.vx]).toEqual([101, 99, 20, -20]);
+    });
     it('tracks the owner-supplied photos, animated GIF, and muted video web copies', async () => {
         const root = 'src/assets/floating-images';
         const manifest = JSON.parse(await readFile(`${root}/provenance.json`, 'utf8'));
@@ -45,6 +63,7 @@ describe('floating image collisions', () => {
         expect(manifest.items).toHaveLength(16);
         expect(manifest.items.filter((item: { kind: string }) => item.kind === 'image')).toHaveLength(14);
         for (const image of manifest.items) {
+            expect(floatingMediaDescriptions[image.id]?.length).toBeGreaterThan(15);
             const bytes = await readFile(`${root}/${image.file}`);
             expect(createHash('sha256').update(bytes).digest('hex')).toBe(image.sha256);
             const metadata = await sharp(bytes).metadata();

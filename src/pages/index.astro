@@ -38,11 +38,13 @@ const paperStyle = `--post-paper:url("${await postPaperUrl()}")`;
             </div>
         ))}
     </div>
-    <SiteFooter />
+    <SiteFooter gallery />
     <ImageViewer />
     <script>
         import { mountGlitterParallax } from '../lib/glitter-parallax';
+        import { mountGalleryNavigation } from '../lib/gallery-navigation';
         mountGlitterParallax();
+        mountGalleryNavigation();
     </script>
     <script is:inline src="https://videopress.com/videopress-iframe.js"></script>
 </SiteLayout>

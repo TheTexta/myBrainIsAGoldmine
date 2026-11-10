@@ -36,7 +36,10 @@ void main() {
         pixel.x / 6.0 + vec3(0.0, -1.0 / 3.0, -2.0 / 3.0)));
     // Multiply blending attenuates the real page instead of covering it with
     // opaque glitter. Nothing is sampled from or substituted for its content.
-    outputColor = vec4(displayLight(clamp(lines * mix(vec3(1.0), mask, maskVisibility), 0.0, 1.0)), 0.8);
+    // Match the browser compositor's premultiplied backing store. Converting a
+    // straight-alpha accelerated surface is unreliable in some Safari versions.
+    vec3 color = displayLight(clamp(lines * mix(vec3(1.0), mask, maskVisibility), 0.0, 1.0));
+    outputColor = vec4(color * 0.8, 0.8);
 }`;
 
 export function overlayResolution(width: number, height: number, pixelRatio: number) {

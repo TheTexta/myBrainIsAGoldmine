@@ -39,3 +39,11 @@ export function stepFloat(image: FloatingImage, elapsed: number, width: number, 
     image.x += image.vx * delta; image.y += image.vy * delta;
     return constrainFloat(image, width, height, posts);
 }
+
+export function gallerySize(aspect: number, width: number, height: number, expanded: boolean) {
+    const inset = Math.min(16, width / 8, height / 8);
+    const maxWidth = expanded ? Math.min(960, width - inset * 2) : Math.min(280, width * 0.32);
+    const maxHeight = expanded ? height - inset * 2 : Math.min(300, height * 0.34);
+    const imageWidth = Math.min(maxWidth, maxHeight * aspect);
+    return { width: imageWidth, height: imageWidth / aspect };
+}

@@ -13,6 +13,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "test:e2e": "playwright test",
+    "test:graphics": "playwright test --config=playwright.graphics.config.ts",
     "test:unit": "vitest run",
     "test:images:dev": "PUBLIC_SUPABASE_URL= PUBLIC_SUPABASE_ANON_KEY= node scripts/check-dev-images.mjs",
     "test:db": "node scripts/test-db.mjs",

@@ -5,10 +5,8 @@ export function mountCrtOverlay(canvas: HTMLCanvasElement) {
     if (hints.connection?.saveData || new URLSearchParams(location.search).get('crt') === 'off') {
         canvas.dataset.crt = 'off'; return;
     }
-    const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
+    const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
     if (!gl) { canvas.dataset.crt = 'off'; return; }
-    const nativePopover = typeof canvas.showPopover === 'function';
-    if (nativePopover) canvas.popover = 'manual';
     const shaders: WebGLShader[] = [];
     let program: WebGLProgram | null = null;
     let buffer: WebGLBuffer | null = null;
@@ -35,14 +33,11 @@ export function mountCrtOverlay(canvas: HTMLCanvasElement) {
     }
     function bringToFront() {
         if (disposed || !ready) return;
-        if (nativePopover) {
-            if (canvas.matches(':popover-open')) canvas.hidePopover();
-            canvas.showPopover();
-        } else {
-            // A numeric z-index cannot exceed a native modal's top layer.
-            const host = [...document.querySelectorAll<HTMLDialogElement>('dialog[open]')].at(-1) ?? document.body;
-            if (canvas.parentElement !== host) host.append(canvas);
-        }
+        // Safari can composite accelerated popovers without their multiply
+        // backdrop. Keep the canvas in the page's ordinary compositing group;
+        // move it into a native dialog when that dialog owns the top layer.
+        const host = [...document.querySelectorAll<HTMLDialogElement>('dialog[open]')].at(-1) ?? document.body;
+        if (canvas.parentElement !== host) host.append(canvas);
         requestDraw();
     }
     const dialogs = new MutationObserver((records) => {
@@ -59,7 +54,6 @@ export function mountCrtOverlay(canvas: HTMLCanvasElement) {
     function dispose() {
         if (disposed) return;
         disposed = true; stop(); dialogs.disconnect();
-        if (nativePopover && canvas.matches(':popover-open')) canvas.hidePopover();
         canvas.hidden = true; canvas.dataset.crt = 'off';
         window.removeEventListener('resize', requestDraw);
         window.removeEventListener('pagehide', pageHide);

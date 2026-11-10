@@ -1,15 +1,24 @@
-import { constrainFloat, stepFloat, type FloatingImage, type FloatRect } from './floating-images';
+import { constrainFloat, gallerySize, stepFloat, type FloatingImage, type FloatRect } from './floating-images';
 
 export function mountFloatingImages(layer: HTMLElement) {
     const photos = [...layer.querySelectorAll<HTMLElement>('[data-floating-image]')];
     const blocks = [...document.querySelectorAll<HTMLElement>('.feed-container > .content')];
+    const gallery = layer.dataset.floatingMode === 'gallery';
+    const stage = gallery ? layer.closest<HTMLElement>('[data-gallery-stage]')! : null;
+    const aspects = photos.map((photo) => Number(photo.dataset.aspect));
+    let expanded: number | null = null;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const dataSaver = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     const animated = photos.map((photo) => ({ photo, video: photo.querySelector<HTMLVideoElement>('video'), still: photo.querySelector<HTMLSourceElement>('[data-animated-still]') }))
         .filter((item) => item.video || item.still);
     const visible = new Set<HTMLElement>();
     const playback = new WeakMap<HTMLVideoElement, boolean>();
-    const particles: FloatingImage[] = photos.map((_, index) => ({ x: 0, y: 0, width: 0, height: 0, vx: (index % 2 ? -1 : 1) * (12 + index * 2), vy: (index % 3 ? 1 : -1) * (14 + index * 2) }));
+    const particles: FloatingImage[] = photos.map((_, index) => {
+        const angle = index / photos.length * Math.PI * 2 + 0.23, speed = 36 + index % 5 * 6;
+        return { x: 0, y: 0, width: 0, height: 0,
+            vx: gallery ? Math.cos(angle) * speed : (index % 2 ? -1 : 1) * (12 + index * 2),
+            vy: gallery ? Math.sin(angle) * speed : (index % 3 ? 1 : -1) * (14 + index * 2) };
+    });
     let width = 0, height = 0;
     let posts: FloatRect[] = [];
     let room = false, dirty = true, disposed = false, paused = false;
@@ -47,6 +56,28 @@ export function mountFloatingImages(layer: HTMLElement) {
     function measure() {
         dirty = false;
         const oldWidth = width, oldHeight = height;
+        if (gallery) {
+            const bounds = stage!.getBoundingClientRect();
+            width = bounds.width; height = bounds.height; room = width > 0 && height > 0;
+            layer.style.width = `${width}px`; layer.style.height = `${height}px`;
+            posts = [];
+            particles.forEach((particle, index) => {
+                const size = gallerySize(aspects[index], width, height, expanded === index);
+                if (!particle.width) {
+                    particle.x = (width - size.width) / 2; particle.y = (height - size.height) / 2;
+                } else if (width !== oldWidth || height !== oldHeight || particle.width !== size.width || particle.height !== size.height) {
+                    const centerX = (particle.x + particle.width / 2) / oldWidth * width;
+                    const centerY = (particle.y + particle.height / 2) / oldHeight * height;
+                    particle.x = centerX - size.width / 2; particle.y = centerY - size.height / 2;
+                }
+                Object.assign(particle, size); constrainFloat(particle, width, height, []);
+                photos[index].style.width = `${particle.width}px`; photos[index].style.height = `${particle.height}px`;
+                photos[index].setAttribute('aria-expanded', String(expanded === index));
+                const image = photos[index].querySelector('img');
+                if (image) image.sizes = `${Math.ceil(particle.width)}px`;
+            });
+            return;
+        }
         width = document.documentElement.clientWidth;
         // The absolutely positioned layer is out of flow: body height measures
         // content, without feeding the layer's own height back into its bounds.
@@ -58,7 +89,7 @@ export function mountFloatingImages(layer: HTMLElement) {
         room = gutter >= 28;
         if (!room) { syncMedia(); return; }
         particles.forEach((particle, index) => {
-            const aspect = Number(photos[index].dataset.aspect);
+            const aspect = aspects[index];
             const nextWidth = Math.min(144, gutter - 12, Math.min(176, height * 0.22) * aspect);
             const nextHeight = nextWidth / aspect;
             // A deliberate static layout must not depend on font/image load order.
@@ -114,15 +145,26 @@ export function mountFloatingImages(layer: HTMLElement) {
     const dialogs = new MutationObserver((records) => {
         if (records.some((record) => record.target instanceof HTMLDialogElement)) motionChanged();
     });
+    function selectPhoto(event: MouseEvent) {
+        const button = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-floating-image]') : null;
+        const index = button ? photos.indexOf(button) : -1;
+        if (index < 0) return;
+        expanded = expanded === index ? null : index;
+        dirty = true; requestFrame();
+    }
+    function collapsePhoto(event: KeyboardEvent) {
+        if (event.key === 'Escape' && expanded !== null) { expanded = null; dirty = true; requestFrame(); }
+    }
     function dispose() {
         if (disposed) return;
         disposed = true; stop(); sizes.disconnect(); dialogs.disconnect(); mediaVisibility.disconnect(); syncMedia();
         window.removeEventListener('resize', layoutChanged);
         window.removeEventListener('pagehide', pageHide); window.removeEventListener('pageshow', pageShow);
         document.removeEventListener('visibilitychange', visibility); reducedMotion.removeEventListener('change', motionChanged);
+        layer.removeEventListener('click', selectPhoto); layer.removeEventListener('keydown', collapsePhoto);
     }
-    blocks.forEach((block) => sizes.observe(block));
-    sizes.observe(document.body);
+    if (stage) { sizes.observe(stage); layer.addEventListener('click', selectPhoto); layer.addEventListener('keydown', collapsePhoto); }
+    else { blocks.forEach((block) => sizes.observe(block)); sizes.observe(document.body); }
     animated.forEach(({ photo }) => mediaVisibility.observe(photo));
     dialogs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
     window.addEventListener('resize', layoutChanged);

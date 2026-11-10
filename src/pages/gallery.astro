@@ -1,0 +1,21 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import FloatingImages from '../components/FloatingImages.astro';
+import CrtOverlay from '../components/CrtOverlay.astro';
+import { cafe } from '../lib/images/sources';
+import { artworkBackground } from '../lib/images/public';
+
+export const prerender = true;
+const background = await artworkBackground(cafe, { small: [960, 1920], medium: [1280, 2560], large: [1920, 3840] });
+---
+
+<SiteLayout title="Gallery — My brain is a goldmine" bodyClass="gallery-page" bodyStyle={background}>
+    <main class="gallery-stage" data-gallery-stage aria-label="Floating photo gallery">
+        <h1 class="sr-only">Gallery</h1>
+        <FloatingImages gallery />
+        <nav class="gallery-controls" data-gallery-controls aria-label="Gallery navigation">
+            <a class="gallery-back" href="/">Back to posts</a>
+        </nav>
+    </main>
+    <CrtOverlay />
+</SiteLayout>

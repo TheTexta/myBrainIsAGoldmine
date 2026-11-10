@@ -156,14 +156,15 @@ titles at rendering time without changing archived HTML or requiring an import.
 
 ## CRT and floating background images
 
-The homepage and `/index.html` use a **viewport-fixed, transparent CRT overlay**
+The homepage, `/index.html`, and `/gallery` use a **viewport-fixed, transparent CRT overlay**
 adapted from TVM Archive's public-domain CRT-Lottes treatment. Scanlines and RGB
 phosphors stay screen-locked while the document, glitter, and floating images pass
 underneath. The owner's later instruction puts it above all homepage content,
 including the native image viewer. It has `pointer-events: none` (including its
 backdrop), `aria-hidden`, and `inert`; mouse, touch, keyboard, and scrolling remain
-native. A manual popover keeps it above native dialogs, with dialog reparenting
-as the fallback. This is a spatial mask, **not a capture/Gaussian reconstruction
+native. Ordinary page compositing avoids Safari's accelerated-popover blend path;
+the canvas moves into native image dialogs to stay above them. Its WebGL context
+and shader output both use premultiplied alpha. This is a spatial mask, **not a capture/Gaussian reconstruction
 or geometric warp of the DOM**. Artwork routes and admin have no overlay.
 
 There is no Three.js, React island, texture atlas, or continuous shader loop.
@@ -200,3 +201,18 @@ Asset preparation is an explicit local operation, not a build/deployment step:
 `node scripts/prepare-floating-media.mjs "/path/to/mallory site photos"`.
 It requires FFmpeg for video conversion and refuses to overwrite existing outputs.
 Normal builds use the prepared assets and do not require FFmpeg or access to Downloads.
+
+## Viewport gallery
+
+Click homepage glitter/side backgrounds or floating media to open `/gallery`;
+the footer's Gallery link also supports keyboard navigation. Post content and
+existing controls keep their own behavior. The gallery fills `100dvw × 100dvh`
+without scrolling and uses native-optimized `public/3.png` as a cover background.
+All 16 items spawn in the centre, larger than on the homepage, and bounce off
+viewport edges only—there are no photo-to-photo collisions. Click or keyboard-
+activate a photo to expand it while it keeps moving; only one is expanded, and
+reactivating it or Escape shrinks it. Resize clamps photos inside the viewport.
+The plain Back to posts link is white, black on hover/focus, without a border,
+background, underline or boxed outline. Reduced-motion/media lifecycle safeguards
+remain. Run focused Chromium/WebKit coverage with `npm run test:graphics` after
+installing its browser engines (`npx playwright install chromium webkit`).

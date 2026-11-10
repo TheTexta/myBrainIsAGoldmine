@@ -2,24 +2,33 @@
 import { Image, getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import provenance from '../assets/floating-images/provenance.json';
+import { floatingMediaDescriptions } from '../lib/floating-media-descriptions';
+
+interface Props { gallery?: boolean; }
+const { gallery = false } = Astro.props;
+const ItemTag = gallery ? 'button' : 'div';
 
 interface Item { id: string; kind: 'image' | 'gif' | 'video'; file: string; animatedFile?: string; videoFile?: string; }
 const assets = import.meta.glob<ImageMetadata>('../assets/floating-images/*.{jpg,png}', { eager: true, import: 'default' });
 const images = await Promise.all((provenance.items as Item[]).map(async (item) => {
     const image = assets[`../assets/floating-images/${item.file}`];
-    return { ...item, image, poster: item.kind === 'image' ? null : await getImage({ src: image, width: 288, format: 'webp' }) };
+    return { ...item, image, description: gallery ? floatingMediaDescriptions[item.id] : '',
+        poster: item.kind === 'image' ? null : await getImage({ src: image, width: gallery ? 480 : 288, format: 'webp' }) };
 }));
 ---
 
-<div class="floating-images" data-floating-images data-ui aria-hidden="true" inert hidden>
-    {images.map((item) => <div class="floating-image" data-floating-image data-media-id={item.id} data-media-type={item.kind} data-aspect={item.image.width / item.image.height}>
+<div class:list={['floating-images', { 'floating-gallery': gallery }]} data-floating-images data-floating-mode={gallery ? 'gallery' : 'background'} data-ui aria-hidden={gallery ? undefined : 'true'} inert={!gallery} hidden>
+    {images.map((item) => <ItemTag class="floating-image" type={gallery ? 'button' : undefined} aria-label={gallery ? item.description : undefined}
+        aria-expanded={gallery ? 'false' : undefined} data-floating-image data-media-id={item.id} data-media-type={item.kind} data-aspect={item.image.width / item.image.height}>
         {item.kind === 'video' ? <video src={`/floating-media/${item.videoFile}`} poster={item.poster!.src}
-            muted loop playsinline preload="none" disablepictureinpicture tabindex="-1" />
+            muted loop playsinline preload="none" disablepictureinpicture tabindex="-1" aria-hidden={gallery ? 'true' : undefined} />
         : item.kind === 'gif' ? <picture>
             <source data-animated-still media="all" srcset={item.poster!.src} type="image/webp" />
             <Image src={`/floating-media/${item.animatedFile}`} width={288} height={Math.round(288 * item.image.height / item.image.width)} alt="" loading="eager" fetchpriority="low" />
-        </picture> : <Image src={item.image} width={144} widths={[48, 96, 144, 288]} sizes="(max-width: 660px) 48px, 144px" format="webp" alt="" loading="eager" fetchpriority="low" />}
-    </div>)}
+        </picture> : <Image src={item.image} width={gallery ? 240 : 144}
+            widths={gallery ? [...new Set([144, 240, 480, 960, 1600].filter((width) => width <= item.image.width).concat(item.image.width))] : [48, 96, 144, 288]}
+            sizes={gallery ? '(max-width: 660px) 144px, 280px' : '(max-width: 660px) 48px, 144px'} format="webp" alt="" loading="eager" fetchpriority="low" />}
+    </ItemTag>)}
 </div>
 
 <script>

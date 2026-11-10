@@ -15,11 +15,12 @@ the spatial Gaussian beam profile, RGB grille, and pattern curvature, not footag
 reconstruction or a geometric warp/capture of DOM/iframes. No bloom, noise, extra
 flicker, model, cabinet lighting, or new palette. Current overlay strength is accepted.
 
-SCOPE: `src/components/CrtOverlay.astro`, only on `/` and the `/index.html` rewrite.
+SCOPE: `src/components/CrtOverlay.astro`, on `/`, `/index.html`, and `/gallery`.
 Transparent WebGL2 plus multiply compositing; no textures or permanent animation
 loop. `pointer-events:none` applies to canvas and backdrop; it is inert/aria-hidden,
-with no pointer/focus handlers. Manual popover orders it above native dialogs;
-unsupported popovers reparent into the active dialog. No global foreground wrapper.
+with no pointer/focus handlers. Matched premultiplied shader/context output and
+ordinary page compositing avoid Safari's accelerated-popover blend path. Reparent
+into the active native image dialog for top-layer coverage. No global foreground wrapper.
 
 STATES: Native page remains usable without WebGL, after context loss, or with
 `?crt=off`. Original GIF remains unchanged; reduced motion has a first-frame PNG

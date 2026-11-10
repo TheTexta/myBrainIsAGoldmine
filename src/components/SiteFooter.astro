@@ -1,3 +1,9 @@
+---
+interface Props { gallery?: boolean; }
+const { gallery = false } = Astro.props;
+---
+
 <footer>
+    {gallery && <a href="/gallery" class="gallery-entry-link" data-ui>Gallery</a>}
     <a href="https://thetexta.github.io/nepobabiesruntheunderground/index.html" class="footer-link">CC: Dexter Young</a>
 </footer>

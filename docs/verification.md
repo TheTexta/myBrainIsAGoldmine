@@ -469,3 +469,21 @@ The existing fit and 32px-spacing regression assertions were not suppressed, so
 the full suite is not represented as green for this owner-requested as-is snapshot.
 The earlier eight-reference pixel matches predate these last spacing/type tweaks;
 they are historical evidence, not proof that the latest header overflow is fixed.
+
+## Gallery and Safari compatibility follow-up — 2026-11-10
+
+Added the viewport-only `/gallery`, homepage background/media navigation, centred
+spawn of all 16 items, independent edge bouncing without peer collisions, and
+one-at-a-time expansion without stopping movement. The gallery uses optimized
+`3.png`; the Back link follows the owner's plain white/black-hover styling.
+Shared media lifecycle/asset handling remains; no backend or source-media changes.
+
+The reported desktop-Safari pale veil was not reproduced in Playwright's newer
+WebKit 27.2 (installed Safari reports 27.0.1). The paired premultiplied-alpha change
+passed 32 unit tests and all 48 focused Chromium/WebKit desktop/mobile graphics
+cases, including gallery interactions, saturated/black/white pixel compositing,
+resize, native dialogs and click-through. A subsequent compatibility change removes
+native-popover promotion and uses ordinary page/dialog compositing instead.
+**The owner requested immediate commit/push before another final test run**, so
+that last change has not been rerun and affected-Safari confirmation remains needed.
+Existing owner-accepted header/spacing test mismatches remain outside this fix.

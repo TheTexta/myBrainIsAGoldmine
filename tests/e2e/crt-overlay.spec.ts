@@ -17,6 +17,8 @@ test('mounts the transparent, inert CRT overlay on the homepage and alias only',
     await expect(canvas).toHaveAttribute('inert', '');
     await expect(canvas).toHaveCSS('pointer-events', 'none');
     await expect(canvas).toHaveCSS('mix-blend-mode', 'multiply');
+    expect(await canvas.evaluate((element: HTMLCanvasElement) => element.getContext('webgl2')!.getContextAttributes()!.premultipliedAlpha)).toBe(true);
+    expect(await canvas.evaluate((element) => element.parentElement === document.body && !element.hasAttribute('popover'))).toBe(true);
     const area = await canvas.evaluate((element: HTMLCanvasElement) => element.width * element.height);
     expect(area).toBeGreaterThan(100_000); expect(area).toBeLessThanOrEqual(2_000_000);
     expect(await page.locator('.cat-toggle').evaluate((element) => element.getBoundingClientRect().left)).toBe(0);
@@ -29,7 +31,30 @@ test('mounts the transparent, inert CRT overlay on the homepage and alias only',
     expect(errors).toEqual([]);
 });
 
-for (const fallback of [false, true]) test(`stays above native dialogs with all input passing through (${fallback ? 'popover fallback' : 'top layer'})`, async ({ page }, testInfo) => {
+for (const fallback of [false, true]) test(`multiplies page pixels without a pale veil through resize (${fallback ? 'without Popover API' : 'with Popover API'})`, async ({ page }, testInfo) => {
+    if (fallback) await page.addInitScript(() => Object.defineProperty(HTMLElement.prototype, 'showPopover', { value: undefined, configurable: true }));
+    await page.emulateMedia({ reducedMotion: 'reduce' }); await page.goto('/');
+    await expect(page.locator('[data-crt-overlay]')).toHaveAttribute('data-crt', 'lottes');
+    await page.evaluate(() => {
+        for (const [index, color] of ['#fff', '#000', '#c020a0'].entries()) {
+            const patch = document.createElement('div'); patch.dataset.crtPagePatch = '';
+            patch.style.cssText = `position:fixed;left:${32 + index * 64}px;top:128px;width:48px;height:48px;background:${color};z-index:2147483646`;
+            document.body.append(patch);
+        }
+    });
+    for (const width of [testInfo.project.use.viewport!.width, 2300]) {
+        await page.setViewportSize({ width, height: 900 });
+        const screenshot = await page.screenshot();
+        const white = await sharp(screenshot).extract({ left: 32, top: 128, width: 48, height: 48 }).removeAlpha().raw().toBuffer();
+        expect(Math.min(...white), 'white must reveal scanlines').toBeLessThan(250);
+        const black = await sharp(screenshot).extract({ left: 96, top: 128, width: 48, height: 48 }).removeAlpha().raw().toBuffer();
+        expect(Math.max(...black), 'multiply must leave black black, not create a pale veil').toBe(0);
+        const color = await sharp(screenshot).extract({ left: 160, top: 128, width: 48, height: 48 }).removeAlpha().raw().toBuffer();
+        for (let index = 0; index < color.length; index++) expect(color[index], 'multiply must not brighten saturated colour').toBeLessThanOrEqual([192, 32, 160][index % 3] + 1);
+    }
+});
+
+for (const fallback of [false, true]) test(`stays above native dialogs with all input passing through (${fallback ? 'without Popover API' : 'with Popover API'})`, async ({ page }, testInfo) => {
     if (fallback) await page.addInitScript(() => Object.defineProperty(HTMLElement.prototype, 'showPopover', { value: undefined, configurable: true }));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
@@ -46,6 +71,7 @@ for (const fallback of [false, true]) test(`stays above native dialogs with all 
     await page.locator('a[data-post-image]').first().click();
     const viewer = page.getByRole('dialog', { name: 'Enlarged image' });
     await expect(viewer).toBeVisible();
+    await expect.poll(() => canvas.evaluate((element) => element.parentElement?.tagName)).toBe('DIALOG');
     await viewer.evaluate((element) => {
         for (const [index, color] of ['white', 'black'].entries()) {
             const patch = document.createElement('div'); patch.dataset.crtTestPatch = color;
@@ -66,6 +92,7 @@ for (const fallback of [false, true]) test(`stays above native dialogs with all 
     await expect(viewer).not.toBeVisible();
     await expect(canvas).toHaveAttribute('data-events', '0');
     await expect(canvas).toHaveAttribute('data-crt', 'lottes');
+    expect(await canvas.evaluate((element) => element.parentElement === document.body)).toBe(true);
 });
 
 test('keeps a static reduced-motion background without WebGL and supports opt-out', async ({ page }, testInfo) => {
