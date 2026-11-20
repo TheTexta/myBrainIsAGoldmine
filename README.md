@@ -53,6 +53,13 @@ original revision and checksums are not regenerated to accept styling changes.
 run the database suite separately. After browser tests, run `npm run build` again
 before using the build for anything else: test builds contain fake public config.
 
+The offline legacy-import differential runs with
+`npx playwright test --config=playwright.legacy-import.config.ts` (Chromium and WebKit).
+Its isolated test-only Vite fixture uses port 4323, no app build or service doubles,
+and blocks non-local browser requests. It compares all eleven public entries and
+malformed/inert HTML fixtures against the frozen DOMParser reference, including
+ordered writing/media and actual BlockNote documents (excluding generated IDs).
+
 The default build uses the Node standalone adapter:
 
 ```sh
@@ -98,6 +105,9 @@ require a rebuild; the three artwork/splash pages remain static.
 - `src/content/legacy.ts` — stable original entry IDs and panel boundaries.
 - `src/lib/documents.ts` — bounded JSON validation and escaped public HTML renderer.
 - `src/components/admin/` — isolated React/BlockNote publishing UI.
+- `src/lib/selected-draft.ts` — selected draft, revision acknowledgements and publication sequencing; editor documents stay outside React render snapshots.
+- `src/lib/import-legacy-document.ts` — ordered, lossy legacy conversion with BlockNote’s HTML parser supplied by the editor; importing and saving never publish.
+- `src/lib/floating-images-layout.ts` — measured gallery/feed layouts; `floating-images-client.ts` retains the single browser/media lifecycle and `floating-images.ts` owns collision math.
 - `src/styles/` — Tailwind v4 tokens and site-owned public/admin styles. Preflight
   is omitted; BlockNote/Mantine supplies its own editor styling without custom
   CSS hooks. See [styling conventions](DESIGN.md#styling-implementation).

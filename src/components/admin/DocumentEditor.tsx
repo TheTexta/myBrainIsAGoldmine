@@ -3,6 +3,7 @@ import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import { createReactBlockSpec, useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import { embedUrl } from '../../lib/documents';
+import { importLegacyDocument } from '../../lib/import-legacy-document';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 
@@ -44,31 +45,9 @@ export default function DocumentEditor({ initialContent, legacyHtml, disabled, o
         if (!legacyHtml || initialContent) return;
         let cancelled = false;
         const importOriginal = async () => {
-            // Preserve the existing players as explicit supported blocks. HTML
-            // import itself is lossy, so the original stays public until Publish.
-            const original = new DOMParser().parseFromString(legacyHtml, 'text/html');
-            original.querySelectorAll('img').forEach((image) => {
-                const source = image.getAttribute('src');
-                if (source && !/^https?:\/\//i.test(source)) {
-                    const url = new URL(source, window.location.origin);
-                    image.setAttribute('src', `${url.pathname}${url.search}`);
-                }
-            });
-            const chunks = original.body.innerHTML.split(/(<iframe\b[^>]*>[\s\S]*?<\/iframe>|<img\b[^>]*>)/gi);
-            const blocks: typeof schema.PartialBlock[] = [];
-            for (const chunk of chunks) {
-                if (/^<iframe\b/i.test(chunk)) {
-                    const element = new DOMParser().parseFromString(chunk, 'text/html').querySelector('iframe');
-                    const url = embedUrl(element?.getAttribute('src') ?? '');
-                    if (url) blocks.push({ type: 'embed', props: { url } });
-                } else if (/^<img\b/i.test(chunk)) {
-                    const image = new DOMParser().parseFromString(chunk, 'text/html').querySelector('img');
-                    const url = image?.getAttribute('src');
-                    if (url) blocks.push({ type: 'image', props: { url, name: image?.getAttribute('alt') ?? '' } });
-                } else if (chunk.trim()) blocks.push(...editor.tryParseHTMLToBlocks(chunk));
-            }
+            const blocks = importLegacyDocument(legacyHtml, window.location.origin, (html) => editor.tryParseHTMLToBlocks(html));
             if (cancelled) return;
-            editor.replaceBlocks(editor.document, blocks.length ? blocks : [{ type: 'paragraph' }]);
+            editor.replaceBlocks(editor.document, blocks);
             onChange(editor.document);
             setImporting(false);
         };

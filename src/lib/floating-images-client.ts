@@ -1,4 +1,5 @@
-import { constrainFloat, gallerySize, stepFloat, type FloatingImage, type FloatRect } from './floating-images';
+import { constrainFloat, stepFloat, type FloatingImage, type FloatRect } from './floating-images';
+import { layoutFeedImages, layoutGalleryImages } from './floating-images-layout';
 import { createGalleryImageUpgrades } from './gallery-image-upgrades';
 
 export function mountFloatingImages(layer: HTMLElement) {
@@ -60,19 +61,14 @@ export function mountFloatingImages(layer: HTMLElement) {
         const oldWidth = width, oldHeight = height;
         if (gallery) {
             const bounds = stage!.getBoundingClientRect();
-            width = bounds.width; height = bounds.height; room = width > 0 && height > 0;
+            width = bounds.width; height = bounds.height;
             layer.style.width = `${width}px`; layer.style.height = `${height}px`;
             posts = [];
-            particles.forEach((particle, index) => {
-                const size = gallerySize(aspects[index], width, height, expanded === index);
-                if (!particle.width) {
-                    particle.x = (width - size.width) / 2; particle.y = (height - size.height) / 2;
-                } else if (width !== oldWidth || height !== oldHeight || particle.width !== size.width || particle.height !== size.height) {
-                    const centerX = (particle.x + particle.width / 2) / oldWidth * width;
-                    const centerY = (particle.y + particle.height / 2) / oldHeight * height;
-                    particle.x = centerX - size.width / 2; particle.y = centerY - size.height / 2;
-                }
-                Object.assign(particle, size); constrainFloat(particle, width, height, []);
+            const layout = layoutGalleryImages({ width, height }, { width: oldWidth, height: oldHeight }, aspects, particles, expanded);
+            room = layout.room;
+            layout.particles.forEach((next, index) => {
+                const particle = particles[index];
+                Object.assign(particle, next);
                 photos[index].style.width = `${particle.width}px`; photos[index].style.height = `${particle.height}px`;
                 photos[index].setAttribute('aria-expanded', String(expanded === index));
                 imageUpgrades!.update(photos[index], particle.width);
@@ -86,25 +82,12 @@ export function mountFloatingImages(layer: HTMLElement) {
         layer.style.height = `${height}px`; layer.style.width = `${width}px`;
         const rectangles = blocks.map((block) => { const rect = block.getBoundingClientRect(); return { x: rect.left + window.scrollX, y: rect.top + window.scrollY, width: rect.width, height: rect.height }; });
         posts = rectangles;
-        const gutter = rectangles.length ? Math.max(0, Math.min(...rectangles.map((rect) => Math.min(rect.x, width - rect.x - rect.width)))) : width / 4;
-        room = gutter >= 28;
+        const layout = layoutFeedImages({ width, height }, { width: oldWidth, height: oldHeight }, window.innerHeight, posts, aspects, particles, staticLayout);
+        room = layout.room;
         if (!room) { syncMedia(); return; }
-        particles.forEach((particle, index) => {
-            const aspect = aspects[index];
-            const nextWidth = Math.min(144, gutter - 12, Math.min(176, height * 0.22) * aspect);
-            const nextHeight = nextWidth / aspect;
-            // A deliberate static layout must not depend on font/image load order.
-            if (!particle.width || staticLayout) {
-                const laneX = index % 2 ? width - gutter : 0;
-                particle.x = laneX + 6 + Math.max(0, gutter - nextWidth - 12) * ((index * 0.618 + 0.2) % 1);
-                particle.y = index === 0 ? Math.min((height - nextHeight) * 0.03, window.innerHeight * 0.3)
-                    : (height - nextHeight) * ((index + 0.5) / particles.length);
-            } else if (width !== oldWidth || height !== oldHeight) {
-                particle.x = particle.x / Math.max(1, oldWidth - particle.width) * (width - nextWidth);
-                particle.y = particle.y / Math.max(1, oldHeight - particle.height) * (height - nextHeight);
-            }
-            particle.width = nextWidth; particle.height = nextHeight;
-            photos[index].style.width = `${nextWidth}px`; photos[index].style.height = `${nextHeight}px`;
+        layout.particles.forEach((next, index) => {
+            Object.assign(particles[index], next);
+            photos[index].style.width = `${next.width}px`; photos[index].style.height = `${next.height}px`;
         });
     }
     function paint(now: number) {
