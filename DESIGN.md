@@ -185,8 +185,8 @@ Homepage stacking is glitter, document-sized floating-image layer, native writin
 cat/controls, then the viewport CRT overlay. The floating photographs use small,
 uncropped, borderless rectangles; they do not become post/gallery content. They
 bounce outside post rectangles and along full-document edges, never viewport
-edges on scroll. Native Astro handles their responsive delivery. A top-layer
-popover (or modal-child fallback) keeps the CRT above dialogs without input capture.
+edges on scroll. Native Astro handles their responsive delivery. Ordinary page
+compositing moves the CRT into open native dialogs to stay above them without input capture.
 Glitter parallax moves the sparkle texture at two-thirds scroll speed, while posts
 and floats keep normal scrolling and the CRT stays screen-locked. Apply only a
 background-position offset, not a transform on content; reduced motion opts out.

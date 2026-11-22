@@ -1,5 +1,28 @@
 # Publishing architecture and activation
 
+## Editor workflow
+
+1. Sign in at `/admin` with an existing Supabase account granted this site's
+   editorial membership; another site's admin access does not grant access here.
+2. Create an entry, or choose **Import original into BlockNote** for an existing
+   one. Import can simplify galleries/spacing. The original stays public until
+   an edited replacement is deliberately published.
+3. Write, upload images, or insert Spotify/VideoPress embeds. **Save draft** is
+   explicit and private. Status distinguishes unsaved changes, a newer saved
+   draft, and the currently live version.
+4. **Publish** / **Update live post** saves current edits when necessary, then
+   publishes. Uploads must finish first; revision conflicts stop stale changes.
+   **Preview** is optional and neither saves nor publishes; returning to **Write**
+   preserves unsaved text.
+5. **Unpublish**, beside the publishing controls, removes the entry and revokes
+   new original-route reads of its exclusive media. Saved drafts and original
+   objects remain. Previously optimized copies may remain natively cached.
+
+Every entry has its own paper container, including the eleven original entries.
+New entries appear above originals; original grouping metadata and archival
+source remain unchanged. The server-rendered feed needs no rebuild to publish
+and loads no React/BlockNote browser bundles. Artwork pages stay prerendered.
+
 ## Current gate
 
 The owner approved this site's production activation on 2026-10-30 and selected
